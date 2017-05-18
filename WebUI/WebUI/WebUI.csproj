@@ -187,6 +187,7 @@
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="favicon.ico" />
+    <Content Include="Files\test.tif" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
@@ -232,6 +233,22 @@
     <Content Include="Scripts\jquery-1.10.2.min.map" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\BusinessLogic.Abstraction\BusinessLogic.Abstraction.csproj">
+      <Project>{cea35cf4-52b3-4b5c-9ba2-4dc277d02e69}</Project>
+      <Name>BusinessLogic.Abstraction</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BusinessLogic.Dtos\BusinessLogic.Dtos.csproj">
+      <Project>{c7e6ce50-c945-4531-b77e-4129b84d7f68}</Project>
+      <Name>BusinessLogic.Dtos</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BusinessLogic.Managers\BusinessLogic.Managers.csproj">
+      <Project>{d3eba1d9-6a5e-4113-99a8-902fc959e276}</Project>
+      <Name>BusinessLogic.Managers</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Common.Constants\Common.Constants.csproj">
+      <Project>{D2307151-3794-4704-900A-909D15EEA003}</Project>
+      <Name>Common.Constants</Name>
+    </ProjectReference>
     <ProjectReference Include="..\DataAccessLayer.Models\DataAccessLayer.Models.csproj">
       <Project>{3271380c-69fa-4a2a-97d7-739041a87c55}</Project>
       <Name>DataAccessLayer.Models</Name>

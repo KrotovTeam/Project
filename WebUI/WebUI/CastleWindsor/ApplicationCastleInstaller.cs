@@ -1,6 +1,8 @@
 ﻿using System.Linq;
 using System.Reflection;
 using System.Web.Mvc;
+using BusinessLogic.Abstraction;
+using BusinessLogic.Managers;
 using Castle.MicroKernel.Registration;
 using Castle.MicroKernel.SubSystems.Configuration;
 using Castle.Windsor;
@@ -13,6 +15,7 @@ namespace CastleWindsor
         public void Install(IWindsorContainer container, IConfigurationStore store)
         {
             container.Register(Component.For<DatabaseContext>().LifestyleSingleton());
+            container.Register(Component.For<IConvertManager>().ImplementedBy<ConvertManager>().LifestyleTransient());
 
             var controllers = Assembly.GetExecutingAssembly()
                 .GetTypes()
