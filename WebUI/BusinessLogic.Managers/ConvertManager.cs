@@ -13,22 +13,24 @@ namespace BusinessLogic.Managers
         {
             return Task.Run(() =>
             {
-                var img = new Bitmap(fileName);
-                var result = new List<Point>();
-                var coefficient = Coefficients.GetCoefficientForConvert(channel);
-                for (var i = 0; i < img.Width; i++)
+                using (var img = new Bitmap(fileName))
                 {
-                    for (var j = 0; j < img.Height; j++)
+                    var result = new List<Point>();
+                    var coefficient = Coefficients.GetCoefficientForConvert(channel);
+                    for (var i = 0; i < img.Width; i++)
                     {
-                        result.Add(new Point
+                        for (var j = 0; j < img.Height; j++)
                         {
-                            CoordX = i,
-                            CoordY = j,
-                            Value = coefficient.Item1 * img.GetPixel(i, j).R + coefficient.Item2
-                        }); 
+                            result.Add(new Point
+                            {
+                                CoordX = i,
+                                CoordY = j,
+                                Value = coefficient.Item1 * img.GetPixel(i, j).R + coefficient.Item2
+                            });
+                        }
                     }
+                    return (IEnumerable<Point>)result;
                 }
-                return (IEnumerable<Point>)result;
             });
         }
     }
