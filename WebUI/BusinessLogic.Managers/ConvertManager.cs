@@ -8,9 +8,9 @@ namespace BusinessLogic.Managers
 {
     public class ConvertManager : IConvertManager
     {
-        public async Task<float[,]> ConvertSnapshot(string fileName, ChannelEnum channel)
+        public Task<float[,]> ConvertSnapshotAsync(string fileName, ChannelEnum channel)
         {
-            return await Task.Run(() =>
+            return Task.Run(() =>
             {
                 var img = new Bitmap(fileName);
                 var result = new float[img.Width, img.Height];

@@ -17,7 +17,7 @@ namespace WebUI.Controllers
         public async Task<ActionResult> About()
         {
             var path = Server.MapPath("../Files/test.tif");
-            var kek = await _convertManager.ConvertSnapshot(path, ChannelEnum.Channel1);
+            var kek = await _convertManager.ConvertSnapshotAsync(path, ChannelEnum.Channel1);
             ViewBag.Message = "Your application description page.";
             return View();
         }
