@@ -18,7 +18,7 @@ namespace BusinessLogic.Managers
         /// <summary>
         /// Параметр, с которым сравнивается количество выборочных образов, вошедших в кластер
         /// </summary>
-        private int _tettaN = 100;
+        private int _tettaN = 1000;
 
         /// <summary>
         /// Параметр, характеризующий среднеквадратическое отклонение
@@ -43,7 +43,7 @@ namespace BusinessLogic.Managers
         /// <summary>
         /// Кластеры
         /// </summary>
-        private IEnumerable<Cluster> _z;
+        private IList<Cluster> _z;
 
         #endregion
 
@@ -77,6 +77,13 @@ namespace BusinessLogic.Managers
                 }
                 ((List<Point>)perfectCluster.Points).Add(point);
             }
+
+            //Шаг 3 алгоритма
+            var clustersToDelete = _z.Where(p => p.Points.Count() < _tettaN).ToList();
+            foreach (var cluster in clustersToDelete)
+            {
+                _z.Remove(cluster);
+            }
             return _z;
         }
 
@@ -86,7 +93,7 @@ namespace BusinessLogic.Managers
         /// </summary>
         /// <param name="points"></param>
         /// <returns></returns>
-        private IEnumerable<Cluster> Init(IEnumerable<Point> points)
+        private IList<Cluster> Init(IEnumerable<Point> points)
         {
             var step = points.Count()/_clustersCount;
             var result = new List<Cluster>();
