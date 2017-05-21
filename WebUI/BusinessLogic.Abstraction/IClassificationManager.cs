@@ -5,6 +5,6 @@ namespace BusinessLogic.Abstraction
 {
     public interface IClassificationManager
     {
-        IEnumerable<Cluster> Classify(Point[] points);
+        IEnumerable<Cluster> Clustering(IEnumerable<Point> points);
     }
 }

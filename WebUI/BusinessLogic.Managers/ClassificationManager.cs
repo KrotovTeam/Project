@@ -7,20 +7,49 @@ namespace BusinessLogic.Managers
 {
     public class ClassificationManager : IClassificationManager
     {
-        public IEnumerable<Cluster> Classify(Point[] points)
+
+        #region Fields
+
+        /// <summary>
+        /// Необходимое число кластеров
+        /// </summary>
+        private int _clustersCount = 3;
+
+        /// <summary>
+        /// Параметр, с которым сравнивается количество выборочных образов, вошедших в кластер
+        /// </summary>
+        private int _tettaN = 100;
+
+        /// <summary>
+        /// Параметр, характеризующий среднеквадратическое отклонение
+        /// </summary>
+        private int _tettaS = 2;
+
+        /// <summary>
+        /// Параметр, характеризующий компактность
+        /// </summary>
+        private int _tettaC = 2;
+
+        /// <summary>
+        /// Максимальное количество пар центров кластеров, которые можно объединить
+        /// </summary>
+        private int _l = 0;
+
+        /// <summary>
+        /// Допустимое число циклов итерации
+        /// </summary>
+        private int _i = 1;
+
+        #endregion
+
+        public IEnumerable<Cluster> Clustering(IEnumerable<Point> points)
         {
             //Шаг 1 алгоритма
-            var clusterCount = 3;
-            var tettaN = 100;
-            var tettaS = 2;
-            var tettaC = 2;
-            var L = 0;
-            var I = 1;
             var minNumberOfCluster = 0;
 
-            var clusterCenters = GetClustersCenters(clusterCount);
+            var clusterCenters = GetClustersCenters(_clustersCount);
 
-            var Clusters = InitClusters(clusterCount, clusterCenters);
+            var Clusters = InitClusters(_clustersCount, clusterCenters);
 
             //Шаг 2 алгоритма
             foreach (var point in points)
