@@ -8,7 +8,6 @@ namespace BusinessLogic.Managers
 {
     public class ConvertManager : IConvertManager
     {
-        //kekekekek
         public Task<float[,]> ConvertSnapshotAsync(string fileName, ChannelEnum channel)
         {
             return Task.Run(() =>
