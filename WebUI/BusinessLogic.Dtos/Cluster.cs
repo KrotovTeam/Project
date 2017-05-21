@@ -6,6 +6,6 @@ namespace BusinessLogic.Dtos
     {
         public Point CenterCluster { get; set; }
         public IEnumerable<Point> Points { get; set; }
-        ///asdasd
+        
     }
 }
