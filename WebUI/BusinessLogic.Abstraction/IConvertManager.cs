@@ -1,10 +1,11 @@
 ﻿using System.Threading.Tasks;
+using BusinessLogic.Dtos;
 using Common.Constants;
 
 namespace BusinessLogic.Abstraction
 {
     public interface IConvertManager
     {
-        Task<float[,]> ConvertSnapshotAsync(string fileName, ChannelEnum channel);
+        Task<Point[,]> ConvertSnapshotAsync(string fileName, ChannelEnum channel);
     }
 }

@@ -8,18 +8,23 @@ namespace BusinessLogic.Managers
 {
     public class ConvertManager : IConvertManager
     {
-        public Task<float[,]> ConvertSnapshotAsync(string fileName, ChannelEnum channel)
+        public Task<Dtos.Point[,]> ConvertSnapshotAsync(string fileName, ChannelEnum channel)
         {
             return Task.Run(() =>
             {
                 var img = new Bitmap(fileName);
-                var result = new float[img.Width, img.Height];
+                var result = new Dtos.Point[img.Width, img.Height];
                 var coefficient = GetCoefficient(channel);
                 for (var i = 0; i < img.Width; i++)
                 {
                     for (var j = 0; j < img.Height; j++)
                     {
-                        result[i, j] = coefficient.Item1 * img.GetPixel(i, j).R + coefficient.Item2;
+                        result[i, j] = new Dtos.Point
+                        {
+                            CoordX = i,
+                            CoordY = j,
+                            Value = coefficient.Item1 * img.GetPixel(i, j).R + coefficient.Item2
+                        };
                     }
                 }
                 return result;

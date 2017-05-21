@@ -40,10 +40,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IClassificationManager.cs" />
     <Compile Include="IConvertManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\BusinessLogic.Dtos\BusinessLogic.Dtos.csproj">
+      <Project>{c7e6ce50-c945-4531-b77e-4129b84d7f68}</Project>
+      <Name>BusinessLogic.Dtos</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Common.Constants\Common.Constants.csproj">
       <Project>{d2307151-3794-4704-900a-909d15eea003}</Project>
       <Name>Common.Constants</Name>
