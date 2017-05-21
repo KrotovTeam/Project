@@ -1,71 +1,51 @@
-﻿using BusinessLogic.Abstraction;
+﻿using System;
+using System.Drawing;
+using System.Threading.Tasks;
+using BusinessLogic.Abstraction;
 using Common.Constants;
-using OpenCvSharp;
 
 namespace BusinessLogic.Managers
 {
     public class ConvertManager : IConvertManager
     {
-        public double[,] ConvertSnapshot(string fileName, ChannelEnum channel)
+        public async Task<float[,]> ConvertSnapshot(string fileName, ChannelEnum channel)
         {
-            var img = new Mat(fileName, ImreadModes.GrayScale);
-            //var img = OpenCvSharp.Cv2.LoadImage(fileName, LoadMode.GrayScale);
-            var result = new double[img.Height, img.Width];
-            var coefficient = GetCoefficient(channel);
-            var coefficientLow = GetCoefficientLow(channel);
-            for (var i = 0; i < img.Height; i++)
+            return await Task.Run(() =>
             {
-                for (var j = 0; j < img.Width; j++)
+                var img = new Bitmap(fileName);
+                var result = new float[img.Width, img.Height];
+                var coefficient = GetCoefficient(channel);
+                for (var i = 0; i < img.Width; i++)
                 {
-                    //result[i, j] = coefficient * img[i, j][0] + coefficientLow;
+                    for (var j = 0; j < img.Height; j++)
+                    {
+                        result[i, j] = coefficient.Item1 * img.GetPixel(i, j).R + coefficient.Item2;
+                    }
                 }
-            }
-            return result;
+                return result;
+            });
         }
 
-        private double GetCoefficient(ChannelEnum channel)
+        private Tuple<float, float> GetCoefficient(ChannelEnum channel)
         {
             switch (channel)
             {
                 case ChannelEnum.Channel1:
-                    return Coefficients.Ch1;
+                    return new Tuple<float, float>(Coefficients.Ch1, Coefficients.Ch1Low);
                 case ChannelEnum.Channel2:
-                    return Coefficients.Ch2;
+                    return new Tuple<float, float>(Coefficients.Ch2, Coefficients.Ch2Low);
                 case ChannelEnum.Channel3:
-                    return Coefficients.Ch3;
+                    return new Tuple<float, float>(Coefficients.Ch3, Coefficients.Ch3Low);
                 case ChannelEnum.Channel4:
-                    return Coefficients.Ch4;
+                    return new Tuple<float, float>(Coefficients.Ch4, Coefficients.Ch4Low);
                 case ChannelEnum.Channel5:
-                    return Coefficients.Ch5;
+                    return new Tuple<float, float>(Coefficients.Ch5, Coefficients.Ch5Low);
                 case ChannelEnum.Channel6:
-                    return Coefficients.Ch6;
+                    return new Tuple<float, float>(Coefficients.Ch6, Coefficients.Ch6Low);
                 case ChannelEnum.Channel7:
-                    return Coefficients.Ch7;
+                    return new Tuple<float, float>(Coefficients.Ch7, Coefficients.Ch7Low);
                 default:
-                    return 0;
-            }
-        }
-
-        private double GetCoefficientLow(ChannelEnum channel)
-        {
-            switch (channel)
-            {
-                case ChannelEnum.Channel1:
-                    return Coefficients.Ch1Low;
-                case ChannelEnum.Channel2:
-                    return Coefficients.Ch2Low;
-                case ChannelEnum.Channel3:
-                    return Coefficients.Ch3Low;
-                case ChannelEnum.Channel4:
-                    return Coefficients.Ch4Low;
-                case ChannelEnum.Channel5:
-                    return Coefficients.Ch5Low;
-                case ChannelEnum.Channel6:
-                    return Coefficients.Ch6Low;
-                case ChannelEnum.Channel7:
-                    return Coefficients.Ch7Low;
-                default:
-                    return 0;
+                    return new Tuple<float, float>(0, 0);
             }
         }
     }

@@ -1,4 +1,5 @@
-﻿using System.Web.Mvc;
+﻿using System.Threading.Tasks;
+using System.Web.Mvc;
 using BusinessLogic.Abstraction;
 using Common.Constants;
 
@@ -13,10 +14,10 @@ namespace WebUI.Controllers
             return View();
         }
 
-        public ActionResult About()
+        public async Task<ActionResult> About()
         {
             var path = Server.MapPath("../Files/test.tif");
-            var kek = _convertManager.ConvertSnapshot(path, ChannelEnum.Channel1);
+            var kek = await _convertManager.ConvertSnapshot(path, ChannelEnum.Channel1);
             ViewBag.Message = "Your application description page.";
             return View();
         }

@@ -1,9 +1,10 @@
-﻿using Common.Constants;
+﻿using System.Threading.Tasks;
+using Common.Constants;
 
 namespace BusinessLogic.Abstraction
 {
     public interface IConvertManager
     {
-        double[,] ConvertSnapshot(string fileName, ChannelEnum channel);
+        Task<float[,]> ConvertSnapshot(string fileName, ChannelEnum channel);
     }
 }
