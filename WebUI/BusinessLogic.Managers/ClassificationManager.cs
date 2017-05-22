@@ -38,7 +38,7 @@ namespace BusinessLogic.Managers
         /// <summary>
         /// Допустимое число циклов итерации
         /// </summary>
-        private int _i = 1;
+        private int _i = 5;
 
         /// <summary>
         /// Кластеры
@@ -56,6 +56,11 @@ namespace BusinessLogic.Managers
         /// </summary>
         private float _d;
 
+        /// <summary>
+        /// Вектор среднеквадратичного отколнения
+        /// </summary>
+        private IList<float> _sigmaj;
+
         #endregion
 
         /// <summary>
@@ -72,52 +77,84 @@ namespace BusinessLogic.Managers
             //Шаг 1 алгоритма
             _z = Init(points);
 
-            //Шаг 2 алгоритма
-            foreach (var point in points)
+            for (var i = 0; i < _i; i++)
             {
-                var min = float.MaxValue;
-                var perfectCluster = _z.ElementAt(0);
-                foreach (var cluster in _z.Skip(1))
+                //Шаг 2 алгоритма
+                foreach (var point in points)
                 {
-                    var tmpValue = Math.Abs(point.Value - cluster.CenterCluster);
-                    if (tmpValue < min)
+                    var min = float.MaxValue;
+                    var perfectCluster = _z.ElementAt(0);
+                    foreach (var cluster in _z.Skip(1))
                     {
-                        min = tmpValue;
-                        perfectCluster = cluster;
+                        var tmpValue = Math.Abs(point.Value - cluster.CenterCluster);
+                        if (tmpValue < min)
+                        {
+                            min = tmpValue;
+                            perfectCluster = cluster;
+                        }
                     }
+                    ((List<Point>) perfectCluster.Points).Add(point);
                 }
-                ((List<Point>)perfectCluster.Points).Add(point);
-            }
 
-            //Шаг 3 алгоритма
-            var clustersToDelete = _z.Where(p => p.Points.Count() < _tettaN).ToList();
-            foreach (var cluster in clustersToDelete)
-            {
-                _z.Remove(cluster);
-            }
+                //Шаг 3 алгоритма
+                var clustersToDelete = _z.Where(p => p.Points.Count() < _tettaN).ToList();
+                foreach (var cluster in clustersToDelete)
+                {
+                    _z.Remove(cluster);
+                }
 
-            //Шаг 4 алгоритма
-            foreach (var cluster in _z)
-            {
-                cluster.CenterCluster = cluster.Points.Sum(p => p.Value) / cluster.Points.Count();
-            }
+                //Шаг 4 алгоритма
+                foreach (var cluster in _z)
+                {
+                    cluster.CenterCluster = cluster.Points.Sum(p => p.Value)/cluster.Points.Count();
+                }
 
-            //Шаг 5 алгоритма
-            _dj = new List<float>();
-            foreach (var cluster in _z)
-            {
-                _dj.Add(cluster.Points.Sum(p => Math.Abs(p.Value - cluster.CenterCluster) / cluster.Points.Count()));
-            }
+                //Шаг 5 алгоритма
+                _dj = new List<float>();
+                foreach (var cluster in _z)
+                {
+                    _dj.Add(cluster.Points.Sum(p => Math.Abs(p.Value - cluster.CenterCluster)/cluster.Points.Count()));
+                }
 
-            //Шаг 6 алгоритма
-            _d = 0;
-            for (var i = 0; i < _z.Count; i++)
-            {
-                _d += _z[i].Points.Count()*_dj[i];
+                //Шаг 6 алгоритма
+                _d = 0;
+                for (var k = 0; k < _z.Count; k++)
+                {
+                    _d += _z[k].Points.Count()*_dj[k];
+                }
+                _d /= points.Count();
+
+                //Шаг 7 алгоритма
+                if (i == _i)
+                {
+                    _tettaC = 0;
+                    Step11();
+                }
+                else if (_z.Count > 2*_clustersCount || i%2 == 0)
+                {
+                    Step11();
+                }
+                else
+                {
+                    Step8();
+                }
             }
-            _d /= points.Count();
 
             return _z;
+        }
+
+        /// <summary>
+        /// 8-й шаг алгоритма
+        /// </summary>
+        private void Step8()
+        {
+        }
+
+        /// <summary>
+        /// 11-й шаг алгоритма
+        /// </summary>
+        private void Step11()
+        {
         }
 
         /// <summary>
