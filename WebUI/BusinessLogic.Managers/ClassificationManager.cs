@@ -6,12 +6,13 @@ using System.Threading.Tasks;
 using System.Windows.Documents;
 using BusinessLogic.Abstraction;
 using BusinessLogic.Dtos;
+using Common.Constants;
 
 namespace BusinessLogic.Managers
 {
     public class ClassificationManager : IClassificationManager
     {
-        public IEnumerable<Cluster> Classify(Point[] points)
+        public IEnumerable<Cluster> Classify(IEnumerable<Point> points, ChannelEnum channel)
         {
             //Шаг 1 алгоритма
             var clusterCount = 3;
