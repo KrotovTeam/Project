@@ -45,6 +45,17 @@ namespace BusinessLogic.Managers
         /// </summary>
         private IList<Cluster> _z;
 
+        /// <summary>
+        /// Среднее расстояние между объектами входящих в кластер
+        /// </summary>
+        private IList<float> _dj;
+
+        /// <summary>
+        /// Обобщенное среднее расстояние между объектами, находящимися в отдельных кластерах, и соответствующими
+        /// центрами кластеров
+        /// </summary>
+        private float _d;
+
         #endregion
 
         /// <summary>
@@ -68,7 +79,7 @@ namespace BusinessLogic.Managers
                 var perfectCluster = _z.ElementAt(0);
                 foreach (var cluster in _z.Skip(1))
                 {
-                    var tmpValue = Math.Abs(point.Value - cluster.CenterCluster.Value);
+                    var tmpValue = Math.Abs(point.Value - cluster.CenterCluster);
                     if (tmpValue < min)
                     {
                         min = tmpValue;
@@ -84,6 +95,28 @@ namespace BusinessLogic.Managers
             {
                 _z.Remove(cluster);
             }
+
+            //Шаг 4 алгоритма
+            foreach (var cluster in _z)
+            {
+                cluster.CenterCluster = cluster.Points.Sum(p => p.Value) / cluster.Points.Count();
+            }
+
+            //Шаг 5 алгоритма
+            _dj = new List<float>();
+            foreach (var cluster in _z)
+            {
+                _dj.Add(cluster.Points.Sum(p => Math.Abs(p.Value - cluster.CenterCluster) / cluster.Points.Count()));
+            }
+
+            //Шаг 6 алгоритма
+            _d = 0;
+            for (var i = 0; i < _z.Count; i++)
+            {
+                _d += _z[i].Points.Count()*_dj[i];
+            }
+            _d /= points.Count();
+
             return _z;
         }
 
@@ -101,7 +134,7 @@ namespace BusinessLogic.Managers
             {
                 result.Add(new Cluster
                 {
-                    CenterCluster = points.ElementAt(i),
+                    CenterCluster = points.ElementAt(i).Value,
                     Points = new List<Point>()
                 });
             }
