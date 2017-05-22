@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Documents;
 using BusinessLogic.Abstraction;
 using BusinessLogic.Dtos;
 using Common.Constants;
@@ -12,62 +9,174 @@ namespace BusinessLogic.Managers
 {
     public class ClassificationManager : IClassificationManager
     {
-        public IEnumerable<Cluster> Classify(IEnumerable<Point> points, ChannelEnum channel)
+        #region Fields
+
+        /// <summary>
+        /// Необходимое число кластеров
+        /// </summary>
+        private int _clustersCount = 12;
+
+        /// <summary>
+        /// Параметр, с которым сравнивается количество выборочных образов, вошедших в кластер
+        /// </summary>
+        private int _tettaN = 1000;
+
+        /// <summary>
+        /// Параметр, характеризующий среднеквадратическое отклонение
+        /// </summary>
+        private int _tettaS = 2;
+
+        /// <summary>
+        /// Параметр, характеризующий компактность
+        /// </summary>
+        private int _tettaC = 2;
+
+        /// <summary>
+        /// Максимальное количество пар центров кластеров, которые можно объединить
+        /// </summary>
+        private int _l = 2;
+
+        /// <summary>
+        /// Допустимое число циклов итерации
+        /// </summary>
+        private int _i = 5;
+
+        /// <summary>
+        /// Кластеры
+        /// </summary>
+        private IList<Cluster> _z;
+
+        /// <summary>
+        /// Среднее расстояние между объектами входящих в кластер
+        /// </summary>
+        private IList<float> _dj;
+
+        /// <summary>
+        /// Обобщенное среднее расстояние между объектами, находящимися в отдельных кластерах, и соответствующими
+        /// центрами кластеров
+        /// </summary>
+        private float _d;
+
+        /// <summary>
+        /// Вектор среднеквадратичного отколнения
+        /// </summary>
+        private IList<float> _sigmaj;
+
+        #endregion
+
+        /// <summary>
+        /// Кластеризация по алгоритму Isodata
+        /// </summary>
+        /// <param name="points">Исходные точки</param>
+        /// <returns></returns>
+        public IEnumerable<Cluster> Clustering(IEnumerable<Point> points)
         {
-            //Шаг 1 алгоритма
-            var clusterCount = 3;
-            var tettaN = 100;
-            var tettaS = 2;
-            var tettaC = 2;
-            var L = 0;
-            var I = 1;
-            var minNumberOfCluster = 0;
-
-            var clusterCenters = GetClustersCenters(clusterCount);
-
-            var Clusters = InitClusters(clusterCount, clusterCenters);
-
-            //Шаг 2 алгоритма
-            foreach (var point in points)
+            if (points == null)
             {
-                var minValue = 0f;
-                for (var i = 0; i < Clusters.Count - 2; i++)
+                throw new Exception("Точки для кластеризации не заданы.");
+            }
+            //Шаг 1 алгоритма
+            _z = Init(points);
+
+            for (var i = 0; i < _i; i++)
+            {
+                //Шаг 2 алгоритма
+                foreach (var point in points)
                 {
-
-                    var currentValue = Math.Abs(point.Value - Clusters[i].CenterCluster.Value);
-
-                    if (currentValue < Math.Abs(point.Value - Clusters[i + 1].CenterCluster.Value) && currentValue < minValue)
+                    var min = float.MaxValue;
+                    var perfectCluster = _z.ElementAt(0);
+                    foreach (var cluster in _z.Skip(1))
                     {
-                        minNumberOfCluster = i;
-                        minValue = Math.Abs(point.Value - Clusters[i].CenterCluster.Value);
+                        var tmpValue = Math.Abs(point.Value - cluster.CenterCluster);
+                        if (tmpValue < min)
+                        {
+                            min = tmpValue;
+                            perfectCluster = cluster;
+                        }
                     }
+                    ((List<Point>) perfectCluster.Points).Add(point);
                 }
 
-                ((List<Point>) Clusters[minNumberOfCluster].Points).Add(point);
-                
+                //Шаг 3 алгоритма
+                var clustersToDelete = _z.Where(p => p.Points.Count() < _tettaN).ToList();
+                foreach (var cluster in clustersToDelete)
+                {
+                    _z.Remove(cluster);
+                }
+
+                //Шаг 4 алгоритма
+                foreach (var cluster in _z)
+                {
+                    cluster.CenterCluster = cluster.Points.Sum(p => p.Value)/cluster.Points.Count();
+                }
+
+                //Шаг 5 алгоритма
+                _dj = new List<float>();
+                foreach (var cluster in _z)
+                {
+                    _dj.Add(cluster.Points.Sum(p => Math.Abs(p.Value - cluster.CenterCluster)/cluster.Points.Count()));
+                }
+
+                //Шаг 6 алгоритма
+                _d = 0;
+                for (var k = 0; k < _z.Count; k++)
+                {
+                    _d += _z[k].Points.Count()*_dj[k];
+                }
+                _d /= points.Count();
+
+                //Шаг 7 алгоритма
+                if (i == _i)
+                {
+                    _tettaC = 0;
+                    Step11();
+                }
+                else if (_z.Count > 2*_clustersCount || i%2 == 0)
+                {
+                    Step11();
+                }
+                else
+                {
+                    Step8();
+                }
             }
 
-
+            return _z;
         }
 
-        private List<Cluster> InitClusters(int clusterCount, Point[] clustersCenters)
+        /// <summary>
+        /// 8-й шаг алгоритма
+        /// </summary>
+        private void Step8()
         {
-            Cluster cluster = new Cluster();
-            List<Cluster> clusters= new List<Cluster>();
+        }
 
-            for (int i = 0; i < clusterCount; i++)
+        /// <summary>
+        /// 11-й шаг алгоритма
+        /// </summary>
+        private void Step11()
+        {
+        }
+
+        /// <summary>
+        /// Реализация первого шага алгоритма Isodata.
+        /// Определение начальных центров кластеров.
+        /// </summary>
+        /// <param name="points"></param>
+        /// <returns></returns>
+        private IList<Cluster> Init(IEnumerable<Point> points)
+        {
+            var step = points.Count()/_clustersCount;
+            var result = new List<Cluster>();
+            for (var i = step; i < points.Count(); i += step)
             {
-                 clusters.Add(cluster);
-                 clusters[i].CenterCluster = clustersCenters[i];
-                 clusters[i].Points = new List<Point>();
+                result.Add(new Cluster
+                {
+                    CenterCluster = points.ElementAt(i).Value,
+                    Points = new List<Point>()
+                });
             }
-
-            return clusters;
-
-        }
-        private Point[] GetClustersCenters(int clusterCount)
-        {
-            throw new NotImplementedException();
+            return result;
         }
     }
 }
