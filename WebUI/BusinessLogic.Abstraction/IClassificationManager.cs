@@ -6,6 +6,12 @@ namespace BusinessLogic.Abstraction
 {
     public interface IClassificationManager
     {
-        IEnumerable<Cluster> Clustering(IEnumerable<Point> points);
+        /// <summary>
+        /// Кластеризация данных методом Isodata
+        /// </summary>
+        /// <param name="points">Входные данные</param>
+        /// <param name="channels">Каналы по которым происходит классификация</param>
+        /// <returns></returns>
+        IEnumerable<Cluster> Clustering(IEnumerable<RawData> points, IEnumerable<ChannelEnum> channels);
     }
 }

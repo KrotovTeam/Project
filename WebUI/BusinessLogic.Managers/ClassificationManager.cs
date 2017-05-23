@@ -69,14 +69,14 @@ namespace BusinessLogic.Managers
         /// </summary>
         /// <param name="points">Исходные точки</param>
         /// <returns></returns>
-        public IEnumerable<Cluster> Clustering(IEnumerable<Point> points)
+        public IEnumerable<Cluster> Clustering(IEnumerable<RawData> points, IEnumerable<ChannelEnum> channels)
         {
             if (points == null)
             {
                 throw new Exception("Точки для кластеризации не заданы.");
             }
             //Шаг 1 алгоритма
-            _z = Init(points);
+            //_z = Init(points);
 
             for (var i = 0; i < _i; i++)
             {
@@ -87,14 +87,14 @@ namespace BusinessLogic.Managers
                     var perfectCluster = _z.ElementAt(0);
                     foreach (var cluster in _z.Skip(1))
                     {
-                        var tmpValue = Math.Abs(point.Value - cluster.CenterCluster);
+                        var tmpValue = Math.Abs(point.Values[ChannelEnum.Channel4] - cluster.CenterCluster);
                         if (tmpValue < min)
                         {
                             min = tmpValue;
                             perfectCluster = cluster;
                         }
                     }
-                    ((List<Point>) perfectCluster.Points).Add(point);
+                    //((List<Point>) perfectCluster.Points).Add(point);
                 }
 
                 //Шаг 3 алгоритма

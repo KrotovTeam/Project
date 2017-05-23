@@ -43,6 +43,13 @@
     <Compile Include="Cluster.cs" />
     <Compile Include="Point.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RawData.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Common.Constants\Common.Constants.csproj">
+      <Project>{d2307151-3794-4704-900a-909d15eea003}</Project>
+      <Name>Common.Constants</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

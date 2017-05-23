@@ -1,9 +1,8 @@
-﻿using System.Drawing;
-using System.Drawing.Imaging;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 using BusinessLogic.Abstraction;
+using BusinessLogic.Dtos;
 using Common.Constants;
 
 namespace WebUI.Controllers
@@ -20,9 +19,17 @@ namespace WebUI.Controllers
 
         public async Task<ActionResult> About()
         {
-            var path = Server.MapPath("~/Files/test.tif");
-            var kek = await _convertManager.ConvertSnapshotAsync(path, ChannelEnum.Channel1);
-            var lol = _classificationManager.Clustering(kek);
+            var pathToFile1 = Server.MapPath("~/Files/testCh1.tif");
+            var pathToFile2 = Server.MapPath("~/Files/testCh2.tif");
+            var channel4 = _convertManager.ConvertSnapshotAsync(pathToFile1, ChannelEnum.Channel4);
+            var channel5 = _convertManager.ConvertSnapshotAsync(pathToFile2, ChannelEnum.Channel5);
+            await Task.WhenAll(channel4, channel5);
+
+            var channels = new List<ChannelEnum> {ChannelEnum.Channel4, ChannelEnum.Channel5};
+            var rawData =_convertManager.ConvertPointsToRawData(new List<IEnumerable<Point>> {channel4.Result, channel5.Result}, channels);
+            //var clusters = _classificationManager.Clustering(rawData, channels);
+
+
             //using (var bitmap = new Bitmap(605, 601))
             //{
             //    foreach (var point in lol.ElementAt(0).Points)
