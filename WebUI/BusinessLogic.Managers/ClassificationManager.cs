@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Windows.Controls;
 using BusinessLogic.Abstraction;
 using BusinessLogic.Dtos;
 using Common.Constants;
@@ -39,7 +40,7 @@ namespace BusinessLogic.Managers
         /// <summary>
         /// Допустимое число циклов итерации
         /// </summary>
-        private int _i = 5;
+        private int _i = 2;
 
         /// <summary>
         /// Кластеры
@@ -76,25 +77,25 @@ namespace BusinessLogic.Managers
                 throw new Exception("Точки для кластеризации не заданы.");
             }
             //Шаг 1 алгоритма
-            //_z = Init(points);
+            _z = Init(points, channels);
 
-            for (var i = 0; i < _i; i++)
+            for (var i = 1; i < _i; i++)
             {
                 //Шаг 2 алгоритма
                 foreach (var point in points)
                 {
                     var min = float.MaxValue;
                     var perfectCluster = _z.ElementAt(0);
-                    foreach (var cluster in _z.Skip(1))
+                    foreach (var cluster in _z)
                     {
-                        var tmpValue = Math.Abs(point.Values[ChannelEnum.Channel4] - cluster.CenterCluster);
+                        var tmpValue = EuclideanDistance(point, cluster.CenterCluster);
                         if (tmpValue < min)
                         {
                             min = tmpValue;
                             perfectCluster = cluster;
                         }
                     }
-                    //((List<Point>) perfectCluster.Points).Add(point);
+                    ((List<RawData>) perfectCluster.Points).Add(point);
                 }
 
                 //Шаг 3 алгоритма
@@ -103,28 +104,41 @@ namespace BusinessLogic.Managers
                 {
                     _z.Remove(cluster);
                 }
-
+                
                 //Шаг 4 алгоритма
                 foreach (var cluster in _z)
                 {
-                    cluster.CenterCluster = cluster.Points.Sum(p => p.Value)/cluster.Points.Count();
+                    var dictionary = new Dictionary<ChannelEnum, float>();
+                    foreach (var channel in channels)
+                    {
+                        dictionary.Add(channel,0f);
+                        foreach (var point in cluster.Points)
+                        {
+                            dictionary[channel] += point.Values[channel];
+                        }
+                        dictionary[channel] /= cluster.Points.Count();
+                    }
+                    cluster.CenterCluster = dictionary;
                 }
-
+                
                 //Шаг 5 алгоритма
                 _dj = new List<float>();
                 foreach (var cluster in _z)
                 {
-                    _dj.Add(cluster.Points.Sum(p => Math.Abs(p.Value - cluster.CenterCluster)/cluster.Points.Count()));
+                    var value = cluster.Points.Sum(point => EuclideanDistance(point, cluster.CenterCluster)) / cluster.Points.Count();
+                    _dj.Add(value);
                 }
 
+                
                 //Шаг 6 алгоритма
-                _d = 0;
+                _d = 0f;
                 for (var k = 0; k < _z.Count; k++)
                 {
                     _d += _z[k].Points.Count()*_dj[k];
                 }
                 _d /= points.Count();
 
+                /*
                 //Шаг 7 алгоритма
                 if (i == _i)
                 {
@@ -138,7 +152,7 @@ namespace BusinessLogic.Managers
                 else
                 {
                     Step8();
-                }
+                }*/
             }
 
             return _z;
@@ -158,22 +172,35 @@ namespace BusinessLogic.Managers
         {
         }
 
+        private float EuclideanDistance(RawData point, Dictionary<ChannelEnum, float> center)
+        {
+            var keys = point.Values.Keys;
+            var result = keys.Sum(key => (float) Math.Pow((point.Values[key] - center[key]), 2));
+            return (float)Math.Sqrt(result);
+        }
+
         /// <summary>
         /// Реализация первого шага алгоритма Isodata.
         /// Определение начальных центров кластеров.
         /// </summary>
         /// <param name="points"></param>
         /// <returns></returns>
-        private IList<Cluster> Init(IEnumerable<Point> points)
+        private IList<Cluster> Init(IEnumerable<RawData> points, IEnumerable<ChannelEnum> channels)
         {
             var step = points.Count()/_clustersCount;
             var result = new List<Cluster>();
             for (var i = step; i < points.Count(); i += step)
             {
+                var dictinary = new Dictionary<ChannelEnum, float>();
+                for (var j = 0; j < channels.Count(); j++)
+                {
+                    var channel = channels.ElementAt(j);
+                    dictinary.Add(channel, points.ElementAt(j).Values[channel]);
+                }
                 result.Add(new Cluster
                 {
-                    CenterCluster = points.ElementAt(i).Value,
-                    Points = new List<Point>()
+                    CenterCluster = dictinary,
+                    Points = new List<RawData>()
                 });
             }
             return result;

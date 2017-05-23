@@ -27,7 +27,8 @@ namespace WebUI.Controllers
 
             var channels = new List<ChannelEnum> {ChannelEnum.Channel4, ChannelEnum.Channel5};
             var rawData =_convertManager.ConvertPointsToRawData(new List<IEnumerable<Point>> {channel4.Result, channel5.Result}, channels);
-            //var clusters = _classificationManager.Clustering(rawData, channels);
+
+            var clusters = _classificationManager.Clustering(rawData, channels);
 
 
             //using (var bitmap = new Bitmap(605, 601))

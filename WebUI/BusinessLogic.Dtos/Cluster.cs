@@ -1,11 +1,12 @@
 ﻿using System.Collections.Generic;
+using Common.Constants;
 
 namespace BusinessLogic.Dtos
 {
     public class Cluster
     {
-        public float CenterCluster { get; set; }
-        public IEnumerable<Point> Points { get; set; }
+        public Dictionary<ChannelEnum, float> CenterCluster { get; set; }
+        public IEnumerable<RawData> Points { get; set; }
         
     }
 }
