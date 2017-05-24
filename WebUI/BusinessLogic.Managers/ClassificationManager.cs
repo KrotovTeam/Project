@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Windows.Controls;
 using BusinessLogic.Abstraction;
 using BusinessLogic.Dtos;
 using Common.Constants;
@@ -25,7 +24,7 @@ namespace BusinessLogic.Managers
         /// <summary>
         /// Параметр, характеризующий среднеквадратическое отклонение
         /// </summary>
-        private int _tettaS = 2;
+        private int _tettaS = 50;
 
         /// <summary>
         /// Параметр, характеризующий компактность
@@ -50,7 +49,7 @@ namespace BusinessLogic.Managers
         /// <summary>
         /// Среднее расстояние между объектами входящих в кластер
         /// </summary>
-        private IList<float> _dj;
+        private IList<float> _dj = new List<float>();
 
         /// <summary>
         /// Обобщенное среднее расстояние между объектами, находящимися в отдельных кластерах, и соответствующими
@@ -61,7 +60,17 @@ namespace BusinessLogic.Managers
         /// <summary>
         /// Вектор среднеквадратичного отколнения
         /// </summary>
-        private IList<float> _sigmaj;
+        private IList<Dictionary<ChannelEnum, float>> _sigmaj = new List<Dictionary<ChannelEnum, float>>();
+
+        /// <summary>
+        /// Максимальная компонента в векторе среднеквадратичного отклонения
+        /// </summary>
+        private IList<Tuple<ChannelEnum, float>> _sigmajMax = new List<Tuple<ChannelEnum, float>>();
+
+        /// <summary>
+        /// Коэффициент при высчитывании gammaj
+        /// </summary>
+        private float _coefficient = 0.5f;
 
         #endregion
 
@@ -79,7 +88,7 @@ namespace BusinessLogic.Managers
             //Шаг 1 алгоритма
             _z = Init(points, channels);
 
-            for (var i = 1; i < _i; i++)
+            for (var i = 1; i <= _i; i++)
             {
                 //Шаг 2 алгоритма
                 foreach (var point in points)
@@ -122,14 +131,13 @@ namespace BusinessLogic.Managers
                 }
                 
                 //Шаг 5 алгоритма
-                _dj = new List<float>();
+                _dj.Clear();
                 foreach (var cluster in _z)
                 {
                     var value = cluster.Points.Sum(point => EuclideanDistance(point, cluster.CenterCluster)) / cluster.Points.Count();
                     _dj.Add(value);
                 }
 
-                
                 //Шаг 6 алгоритма
                 _d = 0f;
                 for (var k = 0; k < _z.Count; k++)
@@ -138,7 +146,6 @@ namespace BusinessLogic.Managers
                 }
                 _d /= points.Count();
 
-                /*
                 //Шаг 7 алгоритма
                 if (i == _i)
                 {
@@ -151,8 +158,12 @@ namespace BusinessLogic.Managers
                 }
                 else
                 {
-                    Step8();
-                }*/
+                    if (Step8(channels))
+                    {
+                        continue;
+                    }
+                    Step11();
+                }
             }
 
             return _z;
@@ -161,8 +172,66 @@ namespace BusinessLogic.Managers
         /// <summary>
         /// 8-й шаг алгоритма
         /// </summary>
-        private void Step8()
+        private bool Step8(IEnumerable<ChannelEnum> channels)
         {
+            _sigmaj.Clear();
+            _sigmajMax.Clear();
+
+            //Шаг 8
+            foreach (var cluster in _z)
+            {
+                var dictionary = new Dictionary<ChannelEnum, float>();
+                foreach (var channel in channels)
+                {
+                    var value = cluster.Points.Sum(point => (float) Math.Pow((point.Values[channel] - cluster.CenterCluster[channel]), 2));
+                    value = (float) Math.Sqrt(value/cluster.Points.Count());
+                    dictionary.Add(channel,value);
+                }
+                _sigmaj.Add(dictionary);
+            }
+
+            //Шаг 9
+            for (var i = 0; i < _z.Count; i++)
+            {
+                var max = float.MinValue;
+                var channel = ChannelEnum.Unknown;
+                foreach (var key in _sigmaj.ElementAt(i).Keys)
+                {
+                    if (_sigmaj.ElementAt(i)[key] > max)
+                    {
+                        max = _sigmaj.ElementAt(i)[key];
+                        channel = key;
+                    }
+                }
+                _sigmajMax.Add(new Tuple<ChannelEnum, float>(channel, max));
+            }
+
+            //Шаг 10
+            for (var i = 0; i < _z.Count; i++)
+            {
+                if (_sigmajMax[i].Item2 > _tettaS && ((_dj[i] > _d && _z[i].Points.Count() > (2*(_tettaN + 1))) ||
+                    (_z.Count <= _clustersCount/2)))
+                {
+                    var gammaj = _coefficient*_sigmajMax[i].Item2;
+
+                    var newCluster = new Cluster();
+                    foreach (var key in _z[i].CenterCluster.Keys)
+                    {
+                        newCluster.CenterCluster.Add(key, _z[i].CenterCluster[key]);
+                    }
+
+                    //zj+
+                    ((List<RawData>)_z[i].Points).Clear();
+                    _z[i].CenterCluster[_sigmajMax[i].Item1] = _z[i].CenterCluster[_sigmajMax[i].Item1] + gammaj;
+
+                    //zj-
+                    newCluster.CenterCluster[_sigmajMax[i].Item1] = newCluster.CenterCluster[_sigmajMax[i].Item1] - gammaj;
+                    _z.Add(newCluster);
+
+                    return true;
+                }
+            }
+            return false;
         }
 
         /// <summary>
@@ -199,8 +268,7 @@ namespace BusinessLogic.Managers
                 }
                 result.Add(new Cluster
                 {
-                    CenterCluster = dictinary,
-                    Points = new List<RawData>()
+                    CenterCluster = dictinary
                 });
             }
             return result;
