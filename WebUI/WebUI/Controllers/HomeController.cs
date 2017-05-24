@@ -1,9 +1,12 @@
 ﻿using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 using BusinessLogic.Abstraction;
-using BusinessLogic.Dtos;
 using Common.Constants;
+using Point = BusinessLogic.Dtos.Point;
 
 namespace WebUI.Controllers
 {
@@ -31,22 +34,22 @@ namespace WebUI.Controllers
             var clusters = _classificationManager.Clustering(rawData, channels);
 
 
-            //using (var bitmap = new Bitmap(605, 601))
-            //{
-            //    foreach (var point in lol.ElementAt(0).Points)
-            //    {
-            //        bitmap.SetPixel((int)point.CoordX, (int)point.CoordY, Color.Crimson);
-            //    }
-            //    foreach (var point in lol.ElementAt(1).Points)
-            //    {
-            //        bitmap.SetPixel((int)point.CoordX, (int)point.CoordY, Color.DarkBlue);
-            //    }
-            //    foreach (var point in lol.ElementAt(2).Points)
-            //    {
-            //        bitmap.SetPixel((int)point.CoordX, (int)point.CoordY, Color.DarkGreen);
-            //    }
-            //    bitmap.Save(Server.MapPath("~/Files/result.tif"), ImageFormat.Bmp);
-            //}
+            using (var bitmap = new Bitmap(605, 601))
+            {
+                foreach (var point in clusters.ElementAt(0).Points)
+                {
+                    bitmap.SetPixel((int)point.CoordX, (int)point.CoordY, Color.Crimson);
+                }
+                foreach (var point in clusters.ElementAt(1).Points)
+                {
+                    bitmap.SetPixel((int)point.CoordX, (int)point.CoordY, Color.DarkBlue);
+                }
+                foreach (var point in clusters.ElementAt(2).Points)
+                {
+                    bitmap.SetPixel((int)point.CoordX, (int)point.CoordY, Color.DarkGreen);
+                }
+                bitmap.Save(Server.MapPath("~/Files/result.tif"), ImageFormat.Bmp);
+            }
             ViewBag.Message = "Your application description page.";
             return View();
         }

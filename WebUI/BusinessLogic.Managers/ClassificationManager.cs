@@ -29,7 +29,7 @@ namespace BusinessLogic.Managers
         /// <summary>
         /// Параметр, характеризующий компактность
         /// </summary>
-        private int _tettaC = 2;
+        private int _tettaC = 200;
 
         /// <summary>
         /// Максимальное количество пар центров кластеров, которые можно объединить
@@ -39,7 +39,7 @@ namespace BusinessLogic.Managers
         /// <summary>
         /// Допустимое число циклов итерации
         /// </summary>
-        private int _i = 2;
+        private int _i = 4;
 
         /// <summary>
         /// Кластеры
@@ -72,6 +72,11 @@ namespace BusinessLogic.Managers
         /// </summary>
         private float _coefficient = 0.5f;
 
+        /// <summary>
+        /// Расстояния между всеми парами кластеров
+        /// </summary>
+        private IList<Tuple<Cluster, Cluster, float>> _dij = new List<Tuple<Cluster, Cluster, float>>();
+
         #endregion
 
         /// <summary>
@@ -90,6 +95,10 @@ namespace BusinessLogic.Managers
 
             for (var i = 1; i <= _i; i++)
             {
+                foreach (var cluster in _z)
+                {
+                    ((List<RawData>)cluster.Points).Clear();
+                }
                 //Шаг 2 алгоритма
                 foreach (var point in points)
                 {
@@ -97,7 +106,7 @@ namespace BusinessLogic.Managers
                     var perfectCluster = _z.ElementAt(0);
                     foreach (var cluster in _z)
                     {
-                        var tmpValue = EuclideanDistance(point, cluster.CenterCluster);
+                        var tmpValue = EuclideanDistance(point.Values, cluster.CenterCluster);
                         if (tmpValue < min)
                         {
                             min = tmpValue;
@@ -134,7 +143,7 @@ namespace BusinessLogic.Managers
                 _dj.Clear();
                 foreach (var cluster in _z)
                 {
-                    var value = cluster.Points.Sum(point => EuclideanDistance(point, cluster.CenterCluster)) / cluster.Points.Count();
+                    var value = cluster.Points.Sum(point => EuclideanDistance(point.Values, cluster.CenterCluster)) / cluster.Points.Count();
                     _dj.Add(value);
                 }
 
@@ -239,12 +248,42 @@ namespace BusinessLogic.Managers
         /// </summary>
         private void Step11()
         {
+            //Шаг 11
+            for (var i = 0; i < _z.Count - 1; i++)
+            {
+                var tuple = new Tuple<Cluster, Cluster, float>(_z[i], _z[i + 1], EuclideanDistance(_z[i].CenterCluster, _z[i + 1].CenterCluster));
+                _dij.Add(tuple);
+
+                _z[i].IsJoined = false;
+            }
+
+            //Шаг 12
+            var clustersForJoin = _dij.Where(p => p.Item3 < _tettaC).OrderBy(p => p.Item3).Take(_l);
+
+            //Шаг 13
+            foreach (var cluster in clustersForJoin)
+            {
+                if (!cluster.Item1.IsJoined && !cluster.Item2.IsJoined)
+                {
+                    cluster.Item1.IsJoined = cluster.Item2.IsJoined = true;
+                    var newCluster = new Cluster();
+                    foreach (var key in cluster.Item1.CenterCluster.Keys)
+                    {
+                        var value1 = cluster.Item1.CenterCluster[key] * cluster.Item1.Points.Count();
+                        var value2 = cluster.Item2.CenterCluster[key] * cluster.Item2.Points.Count();
+                        newCluster.CenterCluster[key] = (value1 + value2) / (cluster.Item1.Points.Count() + cluster.Item2.Points.Count());
+                    }
+                    _z.Add(newCluster);
+                    _z.Remove(cluster.Item1);
+                    _z.Remove(cluster.Item2);
+                }
+            }
         }
 
-        private float EuclideanDistance(RawData point, Dictionary<ChannelEnum, float> center)
+        private float EuclideanDistance(Dictionary<ChannelEnum, float> point, Dictionary<ChannelEnum, float> center)
         {
-            var keys = point.Values.Keys;
-            var result = keys.Sum(key => (float) Math.Pow((point.Values[key] - center[key]), 2));
+            var keys = point.Keys;
+            var result = keys.Sum(key => (float) Math.Pow((point[key] - center[key]), 2));
             return (float)Math.Sqrt(result);
         }
 
