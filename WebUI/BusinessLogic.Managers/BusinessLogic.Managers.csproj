@@ -47,6 +47,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ClassificationManager.cs" />
     <Compile Include="ConvertManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
