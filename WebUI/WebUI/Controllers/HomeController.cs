@@ -22,34 +22,55 @@ namespace WebUI.Controllers
 
         public async Task<ActionResult> About()
         {
-            var pathToFile1 = Server.MapPath("~/Files/testCh1.tif");
-            var pathToFile2 = Server.MapPath("~/Files/testCh2.tif");
+            var pathToFile1 = Server.MapPath("~/Files/TestChannel4.tif");
+            var pathToFile2 = Server.MapPath("~/Files/TestChannel5.tif");
+            var pathToFile3 = Server.MapPath("~/Files/TestChannel6.tif");
             var channel4 = _convertManager.ConvertSnapshotAsync(pathToFile1, ChannelEnum.Channel4);
             var channel5 = _convertManager.ConvertSnapshotAsync(pathToFile2, ChannelEnum.Channel5);
-            await Task.WhenAll(channel4, channel5);
+            var channel6 = _convertManager.ConvertSnapshotAsync(pathToFile3, ChannelEnum.Channel6);
+            await Task.WhenAll(channel4, channel5, channel6);
 
-            var channels = new List<ChannelEnum> {ChannelEnum.Channel4, ChannelEnum.Channel5};
-            var rawData =_convertManager.ConvertPointsToRawData(new List<IEnumerable<Point>> {channel4.Result, channel5.Result}, channels);
+            var channels = new List<ChannelEnum> {ChannelEnum.Channel4, ChannelEnum.Channel5, ChannelEnum.Channel6};
+            var rawData =_convertManager.ConvertPointsToRawData(new List<IEnumerable<Point>> {channel4.Result, channel5.Result, channel6.Result}, channels);
 
             var clusters = _classificationManager.Clustering(rawData, channels);
 
-
-            using (var bitmap = new Bitmap(605, 601))
-            {
-                foreach (var point in clusters.ElementAt(0).Points)
-                {
-                    bitmap.SetPixel((int)point.CoordX, (int)point.CoordY, Color.Crimson);
-                }
-                foreach (var point in clusters.ElementAt(1).Points)
-                {
-                    bitmap.SetPixel((int)point.CoordX, (int)point.CoordY, Color.DarkBlue);
-                }
-                foreach (var point in clusters.ElementAt(2).Points)
-                {
-                    bitmap.SetPixel((int)point.CoordX, (int)point.CoordY, Color.DarkGreen);
-                }
-                bitmap.Save(Server.MapPath("~/Files/result.tif"), ImageFormat.Bmp);
-            }
+            //using (var bitmap = new Bitmap(999, 999))
+            //{
+            //    foreach (var point in clusters.ElementAt(0).Points)
+            //    {
+            //        bitmap.SetPixel((int)point.CoordX, (int)point.CoordY, Color.Crimson);
+            //    }
+            //    foreach (var point in clusters.ElementAt(1).Points)
+            //    {
+            //        bitmap.SetPixel((int)point.CoordX, (int)point.CoordY, Color.DarkBlue);
+            //    }
+            //    foreach (var point in clusters.ElementAt(2).Points)
+            //    {
+            //        bitmap.SetPixel((int)point.CoordX, (int)point.CoordY, Color.DarkGreen);
+            //    }
+            //    foreach (var point in clusters.ElementAt(3).Points)
+            //    {
+            //        bitmap.SetPixel((int)point.CoordX, (int)point.CoordY, Color.Chocolate);
+            //    }
+            //    foreach (var point in clusters.ElementAt(4).Points)
+            //    {
+            //        bitmap.SetPixel((int)point.CoordX, (int)point.CoordY, Color.Aqua);
+            //    }
+            //    foreach (var point in clusters.ElementAt(5).Points)
+            //    {
+            //        bitmap.SetPixel((int)point.CoordX, (int)point.CoordY, Color.BlueViolet);
+            //    }
+            //    foreach (var point in clusters.ElementAt(6).Points)
+            //    {
+            //        bitmap.SetPixel((int)point.CoordX, (int)point.CoordY, Color.DarkGoldenrod);
+            //    }
+            //    foreach (var point in clusters.ElementAt(7).Points)
+            //    {
+            //        bitmap.SetPixel((int)point.CoordX, (int)point.CoordY, Color.AliceBlue);
+            //    }
+            //    bitmap.Save(Server.MapPath("~/Files/result.bmp"), ImageFormat.Bmp);
+            //}
             ViewBag.Message = "Your application description page.";
             return View();
         }

@@ -24,12 +24,12 @@ namespace BusinessLogic.Managers
         /// <summary>
         /// Параметр, характеризующий среднеквадратическое отклонение
         /// </summary>
-        private int _tettaS = 50;
+        private int _tettaS = 30;
 
         /// <summary>
         /// Параметр, характеризующий компактность
         /// </summary>
-        private int _tettaC = 200;
+        private int _tettaC = 150;
 
         /// <summary>
         /// Максимальное количество пар центров кластеров, которые можно объединить
@@ -39,7 +39,7 @@ namespace BusinessLogic.Managers
         /// <summary>
         /// Допустимое число циклов итерации
         /// </summary>
-        private int _i = 4;
+        private int _i = 15;
 
         /// <summary>
         /// Кластеры
