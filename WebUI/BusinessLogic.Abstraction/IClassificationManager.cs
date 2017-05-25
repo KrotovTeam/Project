@@ -11,7 +11,8 @@ namespace BusinessLogic.Abstraction
         /// </summary>
         /// <param name="points">Входные данные</param>
         /// <param name="channels">Каналы по которым происходит классификация</param>
+        /// <param name="profile">Профайл с параметрами кластеризации</param>
         /// <returns></returns>
-        IEnumerable<Cluster> Clustering(IEnumerable<ClusterPoint> points, IEnumerable<ChannelEnum> channels);
+        IEnumerable<Cluster> Clustering(IEnumerable<ClusterPoint> points, IEnumerable<ChannelEnum> channels, ClusteringProfile profile = null);
     }
 }

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 using BusinessLogic.Abstraction;
+using BusinessLogic.Dtos;
 using Common.Constants;
 using Point = BusinessLogic.Dtos.Point;
 
@@ -29,9 +30,9 @@ namespace WebUI.Controllers
             await Task.WhenAll(channel4, channel5);
 
             var channels = new List<ChannelEnum> {ChannelEnum.Channel4, ChannelEnum.Channel5};
-            var rawData =_convertManager.ConvertListsPoints(new List<IEnumerable<Point>> {channel4.Result, channel5.Result}, channels);
+            var clusterPoints =_convertManager.ConvertListsPoints(new List<IEnumerable<Point>> {channel4.Result, channel5.Result}, channels);
 
-            var clusters = _classificationManager.Clustering(rawData, channels);
+            var clusters = _classificationManager.Clustering(clusterPoints, channels);
 
             //using (var bitmap = new Bitmap(999, 999))
             //{

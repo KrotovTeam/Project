@@ -14,32 +14,32 @@ namespace BusinessLogic.Managers
         /// <summary>
         /// Необходимое число кластеров
         /// </summary>
-        private int _clustersCount = 12;
+        private int _clustersCount;
 
         /// <summary>
         /// Параметр, с которым сравнивается количество выборочных образов, вошедших в кластер
         /// </summary>
-        private int _tettaN = 1000;
+        private int _tettaN;
 
         /// <summary>
         /// Параметр, характеризующий среднеквадратическое отклонение
         /// </summary>
-        private int _tettaS = 30;
+        private float _tettaS;
 
         /// <summary>
         /// Параметр, характеризующий компактность
         /// </summary>
-        private int _tettaC = 150;
+        private float _tettaC;
 
         /// <summary>
         /// Максимальное количество пар центров кластеров, которые можно объединить
         /// </summary>
-        private int _l = 2;
+        private int _l;
 
         /// <summary>
         /// Допустимое число циклов итерации
         /// </summary>
-        private int _i = 5;
+        private int _i;
 
         /// <summary>
         /// Кластеры
@@ -70,7 +70,7 @@ namespace BusinessLogic.Managers
         /// <summary>
         /// Коэффициент при высчитывании gammaj
         /// </summary>
-        private float _coefficient = 0.5f;
+        private float _coefficient;
 
         /// <summary>
         /// Расстояния между всеми парами кластеров
@@ -80,12 +80,13 @@ namespace BusinessLogic.Managers
         #endregion
 
         /// <summary>
-        /// Кластеризация по алгоритму Isodata
+        /// Кластеризация данных методом Isodata
         /// </summary>
-        /// <param name="points">Исходные точки</param>
-        /// <param name="channels">Каналы по которым происходит кластеризация</param>
+        /// <param name="points">Входные данные</param>
+        /// <param name="channels">Каналы по которым происходит классификация</param>
+        /// <param name="profile">Профайл с параметрами кластеризации</param>
         /// <returns></returns>
-        public IEnumerable<Cluster> Clustering(IEnumerable<ClusterPoint> points, IEnumerable<ChannelEnum> channels)
+        public IEnumerable<Cluster> Clustering(IEnumerable<ClusterPoint> points, IEnumerable<ChannelEnum> channels, ClusteringProfile profile = null)
         {
             if (points == null)
             {
@@ -96,6 +97,12 @@ namespace BusinessLogic.Managers
             {
                 throw new Exception("Количество каналов значений точки не совпадет количеству каналов для кластеризации");
             }
+
+            if (profile == null)
+            {
+                profile = ClusteringProfile.DefaultProfile();
+            }
+            SetProfile(profile);
 
             //Шаг 1 алгоритма
             _z = Init(points, channels);
@@ -320,6 +327,21 @@ namespace BusinessLogic.Managers
                 });
             }
             return result;
+        }
+
+        /// <summary>
+        /// Установка профайла
+        /// </summary>
+        /// <param name="profile">Профайл</param>
+        private void SetProfile(ClusteringProfile profile)
+        {
+            _clustersCount = profile.СlustersCount == 0 ? 10 : profile.СlustersCount;
+            _tettaN = profile.TettaN == 0 ? 1000 : profile.TettaN;
+            _tettaS = profile.TettaS == 0 ? 30f : profile.TettaS;
+            _tettaC = profile.TettaC == 0 ? 150f : profile.TettaC;
+            _l = profile.L == 0 ? 2 : profile.L;
+            _i = profile.I == 0 ? 7 : profile.I;
+            _coefficient = profile.Coefficient == 0 ? 0.5f : profile.Coefficient;
         }
     }
 }
