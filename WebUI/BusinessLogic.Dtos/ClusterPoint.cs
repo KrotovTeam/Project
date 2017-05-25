@@ -6,7 +6,7 @@ namespace BusinessLogic.Dtos
     /// <summary>
     /// Сырые данные для кластеризации
     /// </summary>
-    public class RawData
+    public class ClusterPoint
     {
         /// <summary>
         /// Координата по X
@@ -23,7 +23,7 @@ namespace BusinessLogic.Dtos
         /// </summary>
         public Dictionary<ChannelEnum, float> Values { get; set; }
 
-        public RawData()
+        public ClusterPoint()
         {
             Values = new Dictionary<ChannelEnum, float>();
         }

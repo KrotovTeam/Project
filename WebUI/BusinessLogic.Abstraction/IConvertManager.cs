@@ -16,11 +16,11 @@ namespace BusinessLogic.Abstraction
         Task<IEnumerable<Point>> ConvertSnapshotAsync(string fileName, ChannelEnum channel);
 
         /// <summary>
-        /// Преобразование точек из снимка в данные для кластеризации
+        /// Преобразование списков точек из снимка в точки для кластеризации
         /// </summary>
-        /// <param name="dataList">Список с данными</param>
-        /// <param name="channels">Каналы</param>
+        /// <param name="points">Списки с данными</param>
+        /// <param name="channels">Список каналов</param>
         /// <returns></returns>
-        IEnumerable<RawData> ConvertPointsToRawData(IEnumerable<IEnumerable<Point>> dataList, IEnumerable<ChannelEnum> channels);
+        IEnumerable<ClusterPoint> ConvertListsPoints(IEnumerable<IEnumerable<Point>> points, IEnumerable<ChannelEnum> channels);
     }
 }
