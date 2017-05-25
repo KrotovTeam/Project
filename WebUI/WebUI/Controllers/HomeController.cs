@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 using BusinessLogic.Abstraction;
+using BusinessLogic.Dtos;
 using Common.Constants;
 using Point = BusinessLogic.Dtos.Point;
 
@@ -24,16 +25,14 @@ namespace WebUI.Controllers
         {
             var pathToFile1 = Server.MapPath("~/Files/TestChannel4.tif");
             var pathToFile2 = Server.MapPath("~/Files/TestChannel5.tif");
-            var pathToFile3 = Server.MapPath("~/Files/TestChannel6.tif");
             var channel4 = _convertManager.ConvertSnapshotAsync(pathToFile1, ChannelEnum.Channel4);
             var channel5 = _convertManager.ConvertSnapshotAsync(pathToFile2, ChannelEnum.Channel5);
-            var channel6 = _convertManager.ConvertSnapshotAsync(pathToFile3, ChannelEnum.Channel6);
-            await Task.WhenAll(channel4, channel5, channel6);
+            await Task.WhenAll(channel4, channel5);
 
-            var channels = new List<ChannelEnum> {ChannelEnum.Channel4, ChannelEnum.Channel5, ChannelEnum.Channel6};
-            var rawData =_convertManager.ConvertPointsToRawData(new List<IEnumerable<Point>> {channel4.Result, channel5.Result, channel6.Result}, channels);
+            var channels = new List<ChannelEnum> {ChannelEnum.Channel4, ChannelEnum.Channel5};
+            var clusterPoints =_convertManager.ConvertListsPoints(new List<IEnumerable<Point>> {channel4.Result, channel5.Result}, channels);
 
-            var clusters = _classificationManager.Clustering(rawData, channels);
+            var clusters = _classificationManager.Clustering(clusterPoints, channels);
 
             //using (var bitmap = new Bitmap(999, 999))
             //{

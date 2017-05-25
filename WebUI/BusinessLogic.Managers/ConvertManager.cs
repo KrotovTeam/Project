@@ -44,33 +44,34 @@ namespace BusinessLogic.Managers
         }
 
         /// <summary>
-        /// Преобразование точек из снимка в данные для кластеризации
+        /// Преобразование списков точек из снимка в точки для кластеризации
         /// </summary>
-        /// <param name="dataList">Список с данными</param>
-        /// <param name="channels">Каналы</param>
+        /// <param name="points">Списки с данными</param>
+        /// <param name="channels">Список каналов</param>
         /// <returns></returns>
-        public IEnumerable<RawData> ConvertPointsToRawData(IEnumerable<IEnumerable<Point>> dataList, IEnumerable<ChannelEnum> channels)
+        public IEnumerable<ClusterPoint> ConvertListsPoints(IEnumerable<IEnumerable<Point>> points, IEnumerable<ChannelEnum> channels)
         {
-            if (dataList.Count() != channels.Count())
+            if (points.Count() != channels.Count())
             {
                 throw new Exception("Количество списков точек не соответствует количеству каналов");
             }
-            var count = dataList.ElementAt(0).Count();
-            if (dataList.Skip(1).Any(list => list.Count() != count))
+
+            var count = points.ElementAt(0).Count();
+            if (points.Skip(1).Any(list => list.Count() != count))
             {
                 throw new Exception("Списки точек содержат разные количества точек");
             }
-            var result = new List<RawData>();
-            var listCount = dataList.Count();
+
+            var result = new List<ClusterPoint>();
             for (var i = 0; i < count; i++)
             {
-                var item = dataList.ElementAt(0).ElementAt(i);
-                var rawData = new RawData {CoordX = item.CoordX, CoordY = item.CoordY};
-                for (var j = 0; j < listCount; j++)
+                var item = points.ElementAt(0).ElementAt(i);
+                var clusterPoint = new ClusterPoint {CoordX = item.CoordX, CoordY = item.CoordY};
+                for (var j = 0; j < points.Count(); j++)
                 {
-                    rawData.Values.Add(channels.ElementAt(j), dataList.ElementAt(j).ElementAt(i).Value);
+                    clusterPoint.Values.Add(channels.ElementAt(j), points.ElementAt(j).ElementAt(i).Value);
                 }
-                result.Add(rawData);
+                result.Add(clusterPoint);
             }
             return result;
         }
