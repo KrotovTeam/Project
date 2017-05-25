@@ -22,6 +22,7 @@ namespace Common.Constants
         public const float Ch2 = (Ch2High - Ch2Low)/_byte;
         public const float Ch2Low = 8073.52f;
         public const float Ch2High = 9027.85f;
+
         /// <summary>
         /// Коэффициент для канала 3
         /// </summary>
@@ -79,29 +80,6 @@ namespace Common.Constants
                     return new Tuple<float, float>(Ch6, Ch6Low);
                 case ChannelEnum.Channel7:
                     return new Tuple<float, float>(Ch7, Ch7Low);
-                default:
-                    throw new Exception("Не верно задан канал");
-            }
-        }
-
-        public static Tuple<float, float> GetRangeForClassification(ChannelEnum channel)
-        {
-            switch (channel)
-            {
-                case ChannelEnum.Channel1:
-                    return new Tuple<float, float>(Ch1High, Ch1Low);
-                case ChannelEnum.Channel2:
-                    return new Tuple<float, float>(Ch2High, Ch2Low);
-                case ChannelEnum.Channel3:
-                    return new Tuple<float, float>(Ch3High, Ch3Low);
-                case ChannelEnum.Channel4:
-                    return new Tuple<float, float>(Ch4High, Ch4Low);
-                case ChannelEnum.Channel5:
-                    return new Tuple<float, float>(Ch5High, Ch5Low);
-                case ChannelEnum.Channel6:
-                    return new Tuple<float, float>(Ch6High, Ch6Low);
-                case ChannelEnum.Channel7:
-                    return new Tuple<float, float>(Ch7High, Ch7Low);
                 default:
                     throw new Exception("Не верно задан канал");
             }
