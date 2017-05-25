@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using BusinessLogic.Abstraction;
 using BusinessLogic.Dtos;
@@ -342,6 +343,74 @@ namespace BusinessLogic.Managers
             _l = profile.L == 0 ? 2 : profile.L;
             _i = profile.I == 0 ? 7 : profile.I;
             _coefficient = profile.Coefficient == 0 ? 0.5f : profile.Coefficient;
+        }
+
+        /// <summary>
+        /// Установка вегетационного индекса кластерам(NDVI) и определение цвета кластера
+        /// </summary>
+        /// <param name="clusters">Входные кластеры</param>
+        public void SetNdviForClusters(IList<Cluster> clusters)
+        {
+            foreach (var cluster in clusters)
+            {
+                var operand1 = cluster.CenterCluster[ChannelEnum.Channel5] - cluster.CenterCluster[ChannelEnum.Channel4];
+                var operand2 = cluster.CenterCluster[ChannelEnum.Channel5] + cluster.CenterCluster[ChannelEnum.Channel4];
+
+                cluster.Ndvi = operand1 / operand2;
+                cluster.ClusterColor = GetColorFromNdvi(cluster.Ndvi);
+
+            }
+        }
+
+        private Color GetColorFromNdvi(float ndvi)
+        {
+            Color color = new Color();
+
+            if (ndvi >= 0.9)
+            {
+                color = Color.FromArgb(022802);
+            }
+            else if (ndvi >= 0.8)
+            {
+                color = Color.DarkGreen;
+            }
+            else if (ndvi >= 0.7)
+            {
+                color = Color.Green;
+            }
+            else if (ndvi >= 0.6)
+            {
+                color = Color.ForestGreen;
+            }
+            else if (ndvi >= 0.5)
+            {
+                color = Color.LimeGreen;
+            }
+            else if (ndvi >= 0.4)
+            {
+                color = Color.LawnGreen;
+            }
+            else if (ndvi >= 0.3)
+            {
+                color = Color.LawnGreen;
+            }
+            else if (ndvi >= 0.2)
+            {
+                color = Color.YellowGreen;
+            }
+            else if (ndvi >= 0.1)
+            {
+                color = Color.Tan;
+            }
+            else if (ndvi >= 0.0)
+            {
+                color = Color.LightGray;
+            }
+            else if (ndvi >= -1)
+            {
+                color = Color.MidnightBlue;
+            }
+            return color;
         }
     }
 }

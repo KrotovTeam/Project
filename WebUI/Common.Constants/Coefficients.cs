@@ -33,15 +33,19 @@ namespace Common.Constants
         /// Коэффициент для канала 4
         /// </summary>
         public const float Ch4 = (Ch4High - Ch4Low)/_byte;
-        public const float Ch4Low = 6442.92f;
-        public const float Ch4High = 8246.47f;
+        //        public const float Ch4Low = 6442.92f;
+        //        public const float Ch4High = 8246.47f;
+        public const float Ch4Low = 6300.0f;
+        public const float Ch4High = 6800.0f;
 
         /// <summary>
         /// Коэффициент для канала 5
         /// </summary>
         public const float Ch5 = (Ch5High - Ch5Low)/_byte;
-        public const float Ch5Low = 11572.7f;
-        public const float Ch5High = 21692.3f;
+        //        public const float Ch5Low = 11572.7f;
+        //        public const float Ch5High = 21692.3f;
+        public const float Ch5Low = 8450.0f;
+        public const float Ch5High = 8850.0f;
 
         /// <summary>
         /// Коэффициент для канала 6

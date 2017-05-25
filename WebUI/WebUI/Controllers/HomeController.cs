@@ -32,44 +32,22 @@ namespace WebUI.Controllers
             var channels = new List<ChannelEnum> {ChannelEnum.Channel4, ChannelEnum.Channel5};
             var clusterPoints =_convertManager.ConvertListsPoints(new List<IEnumerable<Point>> {channel4.Result, channel5.Result}, channels);
 
-            var clusters = _classificationManager.Clustering(clusterPoints, channels);
+            var clusters = _classificationManager.Clustering(clusterPoints, channels,new ClusteringProfile{I = 10, TettaS = 0.5f, TettaN = 300});
+            _classificationManager.SetNdviForClusters(clusters.ToList());
 
-            //using (var bitmap = new Bitmap(999, 999))
-            //{
-            //    foreach (var point in clusters.ElementAt(0).Points)
-            //    {
-            //        bitmap.SetPixel((int)point.CoordX, (int)point.CoordY, Color.Crimson);
-            //    }
-            //    foreach (var point in clusters.ElementAt(1).Points)
-            //    {
-            //        bitmap.SetPixel((int)point.CoordX, (int)point.CoordY, Color.DarkBlue);
-            //    }
-            //    foreach (var point in clusters.ElementAt(2).Points)
-            //    {
-            //        bitmap.SetPixel((int)point.CoordX, (int)point.CoordY, Color.DarkGreen);
-            //    }
-            //    foreach (var point in clusters.ElementAt(3).Points)
-            //    {
-            //        bitmap.SetPixel((int)point.CoordX, (int)point.CoordY, Color.Chocolate);
-            //    }
-            //    foreach (var point in clusters.ElementAt(4).Points)
-            //    {
-            //        bitmap.SetPixel((int)point.CoordX, (int)point.CoordY, Color.Aqua);
-            //    }
-            //    foreach (var point in clusters.ElementAt(5).Points)
-            //    {
-            //        bitmap.SetPixel((int)point.CoordX, (int)point.CoordY, Color.BlueViolet);
-            //    }
-            //    foreach (var point in clusters.ElementAt(6).Points)
-            //    {
-            //        bitmap.SetPixel((int)point.CoordX, (int)point.CoordY, Color.DarkGoldenrod);
-            //    }
-            //    foreach (var point in clusters.ElementAt(7).Points)
-            //    {
-            //        bitmap.SetPixel((int)point.CoordX, (int)point.CoordY, Color.AliceBlue);
-            //    }
-            //    bitmap.Save(Server.MapPath("~/Files/result.bmp"), ImageFormat.Bmp);
-            //}
+            using (var bitmap = new Bitmap(999, 999))
+            {
+                
+                foreach (var cluster in clusters)
+                {
+                    foreach (var point in cluster.Points)
+                    {
+                        bitmap.SetPixel((int)point.CoordX, (int)point.CoordY, cluster.ClusterColor);
+                    }
+                }
+
+                bitmap.Save(Server.MapPath("~/Files/result.bmp"), ImageFormat.Bmp);
+            }
             ViewBag.Message = "Your application description page.";
             return View();
         }
@@ -80,5 +58,7 @@ namespace WebUI.Controllers
 
             return View();
         }
+
+        
     }
 }
