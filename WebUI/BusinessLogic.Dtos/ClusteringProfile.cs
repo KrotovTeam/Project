@@ -15,12 +15,12 @@
         /// <summary>
         /// Параметр, характеризующий среднеквадратическое отклонение
         /// </summary>
-        public float TettaS { get; set; }
+        public double TettaS { get; set; }
 
         /// <summary>
         /// Параметр, характеризующий компактность
         /// </summary>
-        public float TettaC { get; set; }
+        public double TettaC { get; set; }
 
         /// <summary>
         /// Максимальное количество пар центров кластеров, которые можно объединить
@@ -35,7 +35,7 @@
         /// <summary>
         /// Коэффициент при высчитывании gammaj
         /// </summary>
-        public float Coefficient { get; set; }
+        public double Coefficient { get; set; }
 
         /// <summary>
         /// Профайл со стандартными настройками

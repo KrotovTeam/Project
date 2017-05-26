@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using BusinessLogic.Abstraction;
 using BusinessLogic.Dtos;
@@ -24,12 +25,12 @@ namespace BusinessLogic.Managers
         /// <summary>
         /// Параметр, характеризующий среднеквадратическое отклонение
         /// </summary>
-        private float _tettaS;
+        private double _tettaS;
 
         /// <summary>
         /// Параметр, характеризующий компактность
         /// </summary>
-        private float _tettaC;
+        private double _tettaC;
 
         /// <summary>
         /// Максимальное количество пар центров кластеров, которые можно объединить
@@ -49,33 +50,33 @@ namespace BusinessLogic.Managers
         /// <summary>
         /// Среднее расстояние между объектами входящих в кластер
         /// </summary>
-        private readonly IList<float> _dj = new List<float>();
+        private readonly IList<double> _dj = new List<double>();
 
         /// <summary>
         /// Обобщенное среднее расстояние между объектами, находящимися в отдельных кластерах, и соответствующими
         /// центрами кластеров
         /// </summary>
-        private float _d;
+        private double _d;
 
         /// <summary>
         /// Вектор среднеквадратичного отколнения
         /// </summary>
-        private readonly IList<Dictionary<ChannelEnum, float>> _sigmaj = new List<Dictionary<ChannelEnum, float>>();
+        private readonly IList<Dictionary<ChannelEnum, double>> _sigmaj = new List<Dictionary<ChannelEnum, double>>();
 
         /// <summary>
         /// Максимальная компонента в векторе среднеквадратичного отклонения
         /// </summary>
-        private readonly IList<Tuple<ChannelEnum, float>> _sigmajMax = new List<Tuple<ChannelEnum, float>>();
+        private readonly IList<Tuple<ChannelEnum, double>> _sigmajMax = new List<Tuple<ChannelEnum, double>>();
 
         /// <summary>
         /// Коэффициент при высчитывании gammaj
         /// </summary>
-        private float _coefficient;
+        private double _coefficient;
 
         /// <summary>
         /// Расстояния между всеми парами кластеров
         /// </summary>
-        private readonly IList<Tuple<Cluster, Cluster, float>> _dij = new List<Tuple<Cluster, Cluster, float>>();
+        private readonly IList<Tuple<Cluster, Cluster, double>> _dij = new List<Tuple<Cluster, Cluster, double>>();
 
         #endregion
 
@@ -131,7 +132,7 @@ namespace BusinessLogic.Managers
                 //Шаг 4 алгоритма
                 foreach (var cluster in _z)
                 {
-                    cluster.CenterCluster = new Dictionary<ChannelEnum, float>();
+                    cluster.CenterCluster = new Dictionary<ChannelEnum, double>();
                     foreach (var channel in channels)
                     {
                         cluster.CenterCluster.Add(channel,0f);
@@ -193,11 +194,11 @@ namespace BusinessLogic.Managers
             //Шаг 8
             foreach (var cluster in _z)
             {
-                var dictionary = new Dictionary<ChannelEnum, float>();
+                var dictionary = new Dictionary<ChannelEnum, double>();
                 foreach (var channel in channels)
                 {
-                    var value = cluster.Points.Sum(point => (float) Math.Pow((point.Values[channel] - cluster.CenterCluster[channel]), 2));
-                    value = (float) Math.Sqrt(value/cluster.Points.Count());
+                    var value = cluster.Points.Sum(point => Math.Pow((point.Values[channel] - cluster.CenterCluster[channel]), 2));
+                    value = Math.Sqrt(value/cluster.Points.Count());
                     dictionary.Add(channel,value);
                 }
                 _sigmaj.Add(dictionary);
@@ -206,7 +207,7 @@ namespace BusinessLogic.Managers
             //Шаг 9
             for (var i = 0; i < _z.Count; i++)
             {
-                var max = float.MinValue;
+                var max = double.MinValue;
                 var channel = ChannelEnum.Unknown;
                 foreach (var key in _sigmaj.ElementAt(i).Keys)
                 {
@@ -216,7 +217,7 @@ namespace BusinessLogic.Managers
                         channel = key;
                     }
                 }
-                _sigmajMax.Add(new Tuple<ChannelEnum, float>(channel, max));
+                _sigmajMax.Add(new Tuple<ChannelEnum, double>(channel, max));
             }
 
             //Шаг 10
@@ -255,7 +256,7 @@ namespace BusinessLogic.Managers
             //Шаг 11
             for (var i = 0; i < _z.Count - 1; i++)
             {
-                var tuple = new Tuple<Cluster, Cluster, float>(_z[i], _z[i + 1], EuclideanDistance(_z[i].CenterCluster, _z[i + 1].CenterCluster));
+                var tuple = new Tuple<Cluster, Cluster, double>(_z[i], _z[i + 1], EuclideanDistance(_z[i].CenterCluster, _z[i + 1].CenterCluster));
                 _dij.Add(tuple);
 
                 _z[i].IsJoined = false;
@@ -296,11 +297,11 @@ namespace BusinessLogic.Managers
         /// <param name="pointA">Значения точки А</param>
         /// <param name="pointB">Значения точки B</param>
         /// <returns></returns>
-        private float EuclideanDistance(Dictionary<ChannelEnum, float> pointA, Dictionary<ChannelEnum, float> pointB)
+        private double EuclideanDistance(Dictionary<ChannelEnum, double> pointA, Dictionary<ChannelEnum, double> pointB)
         {
             var keys = pointA.Keys;
-            var result = keys.Sum(key => (float) Math.Pow((pointA[key] - pointB[key]), 2));
-            return (float)Math.Sqrt(result);
+            var result = keys.Sum(key => Math.Pow((pointA[key] - pointB[key]), 2));
+            return Math.Sqrt(result);
         }
 
         /// <summary>
@@ -315,7 +316,7 @@ namespace BusinessLogic.Managers
             var result = new List<Cluster>();
             for (var i = step; i < points.Count(); i += step)
             {
-                var dictinary = new Dictionary<ChannelEnum, float>();
+                var dictinary = new Dictionary<ChannelEnum, double>();
                 for (var j = 0; j < channels.Count(); j++)
                 {
                     var channel = channels.ElementAt(j);
@@ -342,6 +343,74 @@ namespace BusinessLogic.Managers
             _l = profile.L == 0 ? 2 : profile.L;
             _i = profile.I == 0 ? 7 : profile.I;
             _coefficient = profile.Coefficient == 0 ? 0.5f : profile.Coefficient;
+        }
+
+        /// <summary>
+        /// Установка вегетационного индекса кластерам(NDVI) и определение цвета кластера
+        /// </summary>
+        /// <param name="clusters">Входные кластеры</param>
+        public void SetNdviForClusters(IList<Cluster> clusters)
+        {
+            foreach (var cluster in clusters)
+            {
+                var operand1 = cluster.CenterCluster[ChannelEnum.Channel5] - cluster.CenterCluster[ChannelEnum.Channel4];
+                var operand2 = cluster.CenterCluster[ChannelEnum.Channel5] + cluster.CenterCluster[ChannelEnum.Channel4];
+
+                cluster.Ndvi = operand1 / operand2;
+                cluster.ClusterColor = GetColorFromNdvi(cluster.Ndvi);
+
+            }
+        }
+
+        private Color GetColorFromNdvi(double ndvi)
+        {
+            Color color = new Color();
+
+            if (ndvi >= 0.9)
+            {
+                color = Color.FromArgb(022802);
+            }
+            else if (ndvi >= 0.8)
+            {
+                color = Color.DarkGreen;
+            }
+            else if (ndvi >= 0.7)
+            {
+                color = Color.Green;
+            }
+            else if (ndvi >= 0.6)
+            {
+                color = Color.ForestGreen;
+            }
+            else if (ndvi >= 0.5)
+            {
+                color = Color.LimeGreen;
+            }
+            else if (ndvi >= 0.4)
+            {
+                color = Color.LawnGreen;
+            }
+            else if (ndvi >= 0.3)
+            {
+                color = Color.LawnGreen;
+            }
+            else if (ndvi >= 0.2)
+            {
+                color = Color.YellowGreen;
+            }
+            else if (ndvi >= 0.1)
+            {
+                color = Color.Tan;
+            }
+            else if (ndvi >= 0.0)
+            {
+                color = Color.LightGray;
+            }
+            else if (ndvi >= -1)
+            {
+                color = Color.MidnightBlue;
+            }
+            return color;
         }
     }
 }

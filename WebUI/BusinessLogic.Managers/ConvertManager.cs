@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.Linq;
 using System.Threading.Tasks;
 using BusinessLogic.Abstraction;
@@ -25,7 +26,7 @@ namespace BusinessLogic.Managers
                 using (var img = new Bitmap(fileName))
                 {
                     var result = new List<Point>();
-                    var coefficient = Coefficients.GetCoefficientForConvert(channel);
+                    //var coefficient = Coefficients.GetCoefficientForConvert(channel);
                     for (var i = 0; i < img.Width; i++)
                     {
                         for (var j = 0; j < img.Height; j++)
@@ -34,7 +35,8 @@ namespace BusinessLogic.Managers
                             {
                                 CoordX = i,
                                 CoordY = j,
-                                Value = coefficient.Item1 * img.GetPixel(i, j).R + coefficient.Item2
+                                //Value = coefficient.Item1 * img.GetPixel(i, j).R + coefficient.Item2
+                                Value = img.GetPixel(i, j).R
                             });
                         }
                     }

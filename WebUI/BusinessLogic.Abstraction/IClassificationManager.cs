@@ -14,5 +14,11 @@ namespace BusinessLogic.Abstraction
         /// <param name="profile">Профайл с параметрами кластеризации</param>
         /// <returns></returns>
         IEnumerable<Cluster> Clustering(IEnumerable<ClusterPoint> points, IEnumerable<ChannelEnum> channels, ClusteringProfile profile = null);
+        
+        /// <summary>
+        /// Установка вегетационного индекса кластерам(NDVI) и определение цвета кластера
+        /// </summary>
+        /// <param name="clusters">Входные кластеры</param>
+        void SetNdviForClusters(IList<Cluster> clusters);
     }
 }
