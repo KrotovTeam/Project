@@ -32,7 +32,7 @@ namespace WebUI.Controllers
             var channels = new List<ChannelEnum> {ChannelEnum.Channel4, ChannelEnum.Channel5};
             var clusterPoints =_convertManager.ConvertListsPoints(new List<IEnumerable<Point>> {channel4.Result, channel5.Result}, channels);
 
-            var clusters = _classificationManager.Clustering(clusterPoints, channels,new ClusteringProfile{I = 10, TettaS = 0.5f, TettaN = 300, Coefficient = 0.8f});
+            var clusters = _classificationManager.Clustering(clusterPoints, channels,new ClusteringProfile{I = 10, TettaS = 0.5, TettaN = 300, Coefficient = 0.5});
             _classificationManager.SetNdviForClusters(clusters.ToList());
 
             using (var bitmap = new Bitmap(999, 999))

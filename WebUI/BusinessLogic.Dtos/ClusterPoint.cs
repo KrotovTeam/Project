@@ -21,11 +21,11 @@ namespace BusinessLogic.Dtos
         /// <summary>
         /// Значения по каналам
         /// </summary>
-        public Dictionary<ChannelEnum, float> Values { get; set; }
+        public Dictionary<ChannelEnum, double> Values { get; set; }
 
         public ClusterPoint()
         {
-            Values = new Dictionary<ChannelEnum, float>();
+            Values = new Dictionary<ChannelEnum, double>();
         }
     }
 }
