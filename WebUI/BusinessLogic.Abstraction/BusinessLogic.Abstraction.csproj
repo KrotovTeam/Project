@@ -42,6 +42,7 @@
   <ItemGroup>
     <Compile Include="IClassificationManager.cs" />
     <Compile Include="IConvertManager.cs" />
+    <Compile Include="IDownloadManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
