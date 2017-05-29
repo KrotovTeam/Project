@@ -20,5 +20,13 @@ namespace BusinessLogic.Abstraction
         /// </summary>
         /// <param name="clusters">Входные кластеры</param>
         void SetNdviForClusters(IList<Cluster> clusters);
+
+        /// <summary>
+        /// Метод определяет изменения значения вегетационного индекса на снимке c прошлого по текущий год
+        /// </summary>
+        /// <param name="lastYearPoints"></param>
+        /// <param name="currentYearPoints"></param>
+        /// <returns></returns>
+        IList<ResultingPoint> Compare(IEnumerable<Cluster> lastYearClusters, IEnumerable<Cluster> currentYearClusters);
     }
 }

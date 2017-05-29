@@ -362,6 +362,53 @@ namespace BusinessLogic.Managers
             }
         }
 
+        /// <summary>
+        /// Метод определяет изменения значения вегетационного индекса на снимке c прошлого по текущий год
+        /// </summary>
+        /// <param name="lastYearPoints"></param>
+        /// <param name="currentYearPoints"></param>
+        /// <returns></returns>
+        public IList<ResultingPoint> Compare(IEnumerable<Cluster> lastYearClusters, IEnumerable<Cluster> currentYearClusters)
+        {
+            List<ClusterPoint> currentYearPoints = new List<ClusterPoint>();
+            List<ClusterPoint> lastYearPoints = new List<ClusterPoint>();
+            foreach (var cluster in lastYearClusters)
+            {
+                lastYearPoints.AddRange((List<ClusterPoint>)(cluster.Points).GroupBy(point => new {point.CoordX, point.CoordY}));
+            }
+            foreach (var cluster in currentYearClusters)
+            {
+                currentYearPoints.AddRange((List<ClusterPoint>) (cluster.Points).GroupBy(point => new {point.CoordX, point.CoordY}));
+            }
+
+
+            IList<ResultingPoint> resultingPoints = new List<ResultingPoint>();
+            for (var i = 0; i < currentYearPoints.Count(); i++)
+            {
+                var operand1 = currentYearPoints[i].Values[ChannelEnum.Channel5] - currentYearPoints[i].Values[ChannelEnum.Channel4];
+                var operand2 = currentYearPoints[i].Values[ChannelEnum.Channel5] + currentYearPoints[i].Values[ChannelEnum.Channel4];
+
+                var ndviForCurrentYearPoint = operand1 / operand2;
+
+                var operand3 = lastYearPoints[i].Values[ChannelEnum.Channel5] - lastYearPoints[i].Values[ChannelEnum.Channel4];
+                var operand4 = lastYearPoints[i].Values[ChannelEnum.Channel5] + lastYearPoints[i].Values[ChannelEnum.Channel4];
+
+                var ndviForLastYearPoint = operand3 / operand4;
+
+                var ndviChanging = Math.Abs(ndviForLastYearPoint - ndviForCurrentYearPoint) * 100.0;
+                var isChangeExist = ndviChanging >= 30;
+                var resultingPoint = new ResultingPoint
+                {
+                    CoordX = currentYearPoints[i].CoordX,
+                    CoordY = currentYearPoints[i].CoordY,
+                    Ndvi = ndviForCurrentYearPoint,
+                    IsChanged = isChangeExist
+                };
+                resultingPoints.Add(resultingPoint);
+            }
+            return resultingPoints;
+        }
+
         private Color GetColorFromNdvi(double ndvi)
         {
             Color color = new Color();
