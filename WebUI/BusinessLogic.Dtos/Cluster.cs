@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Drawing;
 using Common.Constants;
 
 namespace BusinessLogic.Dtos
@@ -10,7 +9,6 @@ namespace BusinessLogic.Dtos
         public IEnumerable<ClusterPoint> Points { get; set; }
         public bool IsJoined { get; set; }
         public double Ndvi { get; set; }
-        public Color ClusterColor { get; set; }
 
         public Cluster()
         {

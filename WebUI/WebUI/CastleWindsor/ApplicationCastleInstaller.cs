@@ -17,6 +17,7 @@ namespace CastleWindsor
             container.Register(Component.For<DatabaseContext>().LifestyleSingleton());
             container.Register(Component.For<IConvertManager>().ImplementedBy<ConvertManager>().LifestyleTransient());
             container.Register(Component.For<IClassificationManager>().ImplementedBy<ClassificationManager>().LifestyleTransient());
+            container.Register(Component.For<IDrawManager>().ImplementedBy<DrawManager>().LifestyleTransient());
 
             var controllers = Assembly.GetExecutingAssembly()
                 .GetTypes()

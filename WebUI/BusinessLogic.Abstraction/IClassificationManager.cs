@@ -24,11 +24,17 @@ namespace BusinessLogic.Abstraction
         /// <summary>
         /// Метод определяет изменения значения вегетационного индекса на снимке c прошлого по текущий год
         /// </summary>
-        /// <param name="lastYearPoints"></param>
-        /// <param name="currentYearPoints"></param>
+        /// <param name="lastYearClusters"></param>
+        /// <param name="currentYearClusters"></param>
         /// <returns></returns>
         IList<ResultingPoint> Compare(IEnumerable<Cluster> lastYearClusters, IEnumerable<Cluster> currentYearClusters);
 
-        IEnumerable<ResultingPoint> SetNdviToPoints(IEnumerable<ClusterPoint> lastYearPoints, IEnumerable<ClusterPoint> currentYearPoints);
+        /// <summary>
+        /// Определение динамики по снимкам
+        /// </summary>
+        /// <param name="lastYearPoints">Точки для прошлого года</param>
+        /// <param name="currentYearPoints">Актуальные точки</param>
+        /// <returns></returns>
+        IList<ResultingPoint> DeterminationDinamics(IList<ClusterPoint> lastYearPoints, IList<ClusterPoint> currentYearPoints);
     }
 }

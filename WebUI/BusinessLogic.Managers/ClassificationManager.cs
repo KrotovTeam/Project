@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using BusinessLogic.Abstraction;
 using BusinessLogic.Dtos;
@@ -357,16 +356,14 @@ namespace BusinessLogic.Managers
                 var operand2 = cluster.CenterCluster[ChannelEnum.Channel5] + cluster.CenterCluster[ChannelEnum.Channel4];
 
                 cluster.Ndvi = operand1 / operand2;
-                cluster.ClusterColor = GetColorFromNdvi(cluster.Ndvi);
-
             }
         }
 
         /// <summary>
         /// Метод определяет изменения значения вегетационного индекса на снимке c прошлого по текущий год
         /// </summary>
-        /// <param name="lastYearPoints"></param>
-        /// <param name="currentYearPoints"></param>
+        /// <param name="lastYearClusters"></param>
+        /// <param name="currentYearClusters"></param>
         /// <returns></returns>
         public IList<ResultingPoint> Compare(IEnumerable<Cluster> lastYearClusters, IEnumerable<Cluster> currentYearClusters)
         {
@@ -374,11 +371,11 @@ namespace BusinessLogic.Managers
             List<ClusterPoint> lastYearPoints = new List<ClusterPoint>();
             foreach (var cluster in lastYearClusters)
             {
-                lastYearPoints.AddRange((List<ClusterPoint>)(cluster.Points).GroupBy(point => new {point.CoordX, point.CoordY}));
+                lastYearPoints.AddRange((List<ClusterPoint>)(cluster.Points).GroupBy(point => new {point.Latitude, point.Longitude}));
             }
             foreach (var cluster in currentYearClusters)
             {
-                currentYearPoints.AddRange((List<ClusterPoint>) (cluster.Points).GroupBy(point => new {point.CoordX, point.CoordY}));
+                currentYearPoints.AddRange((List<ClusterPoint>) (cluster.Points).GroupBy(point => new {point.Latitude, point.Longitude}));
             }
 
 
@@ -399,8 +396,8 @@ namespace BusinessLogic.Managers
                 var isChangeExist = ndviChanging >= 30;
                 var resultingPoint = new ResultingPoint
                 {
-                    CoordX = currentYearPoints[i].CoordX,
-                    CoordY = currentYearPoints[i].CoordY,
+                    Latitude = currentYearPoints[i].Latitude,
+                    Longitude = currentYearPoints[i].Longitude,
                     Ndvi = ndviForCurrentYearPoint,
                     IsChanged = isChangeExist
                 };
@@ -409,18 +406,24 @@ namespace BusinessLogic.Managers
             return resultingPoints;
         }
 
-        public IEnumerable<ResultingPoint> SetNdviToPoints(IEnumerable<ClusterPoint> lastYearPoints,IEnumerable<ClusterPoint> currentYearPoints)
+        /// <summary>
+        /// Определение динамики по снимкам
+        /// </summary>
+        /// <param name="lastYearPoints">Точки для прошлого года</param>
+        /// <param name="currentYearPoints">Актуальные точки</param>
+        /// <returns></returns>
+        public IList<ResultingPoint> DeterminationDinamics(IList<ClusterPoint> lastYearPoints, IList<ClusterPoint> currentYearPoints)
         {
-            IEnumerable<ResultingPoint> resultingPoints = new List<ResultingPoint>();
+            IList<ResultingPoint> resultingPoints = new List<ResultingPoint>();
             for (var i = 0; i < currentYearPoints.Count(); i++)
             {
-                var operand1 = ((List<ClusterPoint>)currentYearPoints)[i].Values[ChannelEnum.Channel5] - ((List<ClusterPoint>)currentYearPoints)[i].Values[ChannelEnum.Channel4];
-                var operand2 = ((List<ClusterPoint>)currentYearPoints)[i].Values[ChannelEnum.Channel5] + ((List<ClusterPoint>)currentYearPoints)[i].Values[ChannelEnum.Channel4];
+                var operand1 = currentYearPoints[i].Values[ChannelEnum.Channel5] - currentYearPoints[i].Values[ChannelEnum.Channel4];
+                var operand2 = currentYearPoints[i].Values[ChannelEnum.Channel5] + currentYearPoints[i].Values[ChannelEnum.Channel4];
 
                 var ndviForCurrentYearPoint = operand1 / operand2;
 
-                var operand3 = ((List<ClusterPoint>)lastYearPoints)[i].Values[ChannelEnum.Channel5] - ((List<ClusterPoint>)lastYearPoints)[i].Values[ChannelEnum.Channel4];
-                var operand4 = ((List<ClusterPoint>)lastYearPoints)[i].Values[ChannelEnum.Channel5] + ((List<ClusterPoint>)lastYearPoints)[i].Values[ChannelEnum.Channel4];
+                var operand3 = lastYearPoints[i].Values[ChannelEnum.Channel5] - lastYearPoints[i].Values[ChannelEnum.Channel4];
+                var operand4 = lastYearPoints[i].Values[ChannelEnum.Channel5] + lastYearPoints[i].Values[ChannelEnum.Channel4];
 
                 var ndviForLastYearPoint = operand3 / operand4;
 
@@ -428,67 +431,15 @@ namespace BusinessLogic.Managers
                 var isChangeExist = ndviChanging >= 30;
                 var resultingPoint = new ResultingPoint
                 {
-                    CoordX = ((List<ClusterPoint>)currentYearPoints)[i].CoordX,
-                    CoordY = ((List<ClusterPoint>)currentYearPoints)[i].CoordY,
+                    Latitude = currentYearPoints[i].Latitude,
+                    Longitude = currentYearPoints[i].Longitude,
                     Ndvi = ndviForCurrentYearPoint,
-                    IsChanged = isChangeExist,
-                    Color = isChangeExist?Color.Red:GetColorFromNdvi(ndviForCurrentYearPoint)
+                    IsChanged = isChangeExist
                 };
-                ((List<ResultingPoint>)resultingPoints).Add(resultingPoint);
+
+                resultingPoints.Add(resultingPoint);
             }
             return resultingPoints;
-
-        }
-
-        private Color GetColorFromNdvi(double ndvi)
-        {
-            Color color = new Color();
-
-            if (ndvi >= 0.9)
-            {
-                color = Color.FromArgb(0x001100);
-            }
-            else if (ndvi >= 0.8)
-            {
-                color = Color.FromArgb(0x002000);
-            }
-            else if (ndvi >= 0.7)
-            {
-                color = Color.FromArgb(0x003000); 
-            }
-            else if (ndvi >= 0.6)
-            {
-                color = Color.FromArgb(0x003500);
-            }
-            else if (ndvi >= 0.5)
-            {
-                color = Color.FromArgb(0x004000);
-            }
-            else if (ndvi >= 0.4)
-            {
-                color = Color.FromArgb(005000);
-            }
-            else if (ndvi >= 0.3)
-            {
-                color = Color.FromArgb(0x428c02);
-            }
-            else if (ndvi >= 0.2)
-            {
-                color = Color.FromArgb(0x72ba14);
-            }
-            else if (ndvi >= 0.1)
-            {
-                color = Color.FromArgb(0x875b28);
-            }
-            else if (ndvi >= 0.0)
-            {
-                color = Color.FromArgb(0xe5dcd3);
-            }
-            else if (ndvi >= -1)
-            {
-                color = Color.FromArgb(0x030a33);
-            }
-            return color;
         }
     }
 }
