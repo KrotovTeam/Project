@@ -12,9 +12,9 @@ namespace BusinessLogic.Dtos
         /// </summary>
         public string Path { get; set; }
 
-        /// <summary>
-        /// Канал
-        /// </summary>
-        public ChannelEnum Channel { get; set; }
+        ///// <summary>
+        ///// Канал
+        ///// </summary>
+        //public ChannelEnum Channel { get; set; }
     }
 }

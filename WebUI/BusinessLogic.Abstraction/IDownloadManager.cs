@@ -21,6 +21,6 @@ namespace BusinessLogic.Abstraction
         /// <param name="channels">Необходимые каналы</param>
         /// <returns>Пути к сохраненным снимкам</returns>
         IList<Snapshot> DownloadSnapshots(GeographicalPoint point1, GeographicalPoint point2, GeographicalPoint point3,
-            GeographicalPoint point4, DateTime date, IList<ChannelEnum> channels);
+            GeographicalPoint point4, DateTime fromDate, DateTime toDate);
     }
 }
