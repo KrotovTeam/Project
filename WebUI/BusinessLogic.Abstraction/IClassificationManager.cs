@@ -28,5 +28,7 @@ namespace BusinessLogic.Abstraction
         /// <param name="currentYearPoints"></param>
         /// <returns></returns>
         IList<ResultingPoint> Compare(IEnumerable<Cluster> lastYearClusters, IEnumerable<Cluster> currentYearClusters);
+
+        IEnumerable<ResultingPoint> SetNdviToPoints(IEnumerable<ClusterPoint> lastYearPoints, IEnumerable<ClusterPoint> currentYearPoints);
     }
 }

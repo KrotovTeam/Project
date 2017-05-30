@@ -26,7 +26,7 @@ namespace BusinessLogic.Managers
                 using (var img = new Bitmap(fileName))
                 {
                     var result = new List<Point>();
-                    //var coefficient = Coefficients.GetCoefficientForConvert(channel);
+                    var coefficient = Coefficients.GetCoefficientForConvert(channel);
                     for (var i = 0; i < img.Width; i++)
                     {
                         for (var j = 0; j < img.Height; j++)
@@ -35,8 +35,8 @@ namespace BusinessLogic.Managers
                             {
                                 CoordX = i,
                                 CoordY = j,
-                                //Value = coefficient.Item1 * img.GetPixel(i, j).R + coefficient.Item2
-                                Value = img.GetPixel(i, j).R
+                                Value = (0.2125*img.GetPixel(i, j).R + 0.7154* img.GetPixel(i, j).G + 0.0721* img.GetPixel(i, j).B)
+                                //Value = img.GetPixel(i, j).R
                             });
                         }
                     }

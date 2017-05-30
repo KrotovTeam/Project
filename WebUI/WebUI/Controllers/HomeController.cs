@@ -38,23 +38,22 @@ namespace WebUI.Controllers
             var channels = new List<ChannelEnum> {ChannelEnum.Channel4, ChannelEnum.Channel5};
             var clusterPoints =_convertManager.ConvertListsPoints(new List<IEnumerable<Point>> {channel4.Result, channel5.Result}, channels);
             var newClusterPoints = _convertManager.ConvertListsPoints(new List<IEnumerable<Point>> { channel4New.Result, chennel5New.Result }, channels);
-            var lastYearClusters = _classificationManager.Clustering(clusterPoints, channels,new ClusteringProfile{I = 7, TettaS = 2.5, TettaN = 300, TettaC = 10, Coefficient = 0.5, L = 1, СlustersCount = 20});
-            var currentYearClusters = _classificationManager.Clustering(newClusterPoints, channels, new ClusteringProfile { I = 7, TettaS = 2.5, TettaN = 300, TettaC = 10, Coefficient = 0.5, L = 1, СlustersCount = 20 });
+            //var lastYearClusters = _classificationManager.Clustering(clusterPoints, channels,new ClusteringProfile{I = 7, TettaS = 2.5, TettaN = 300, TettaC = 10, Coefficient = 0.5, L = 1, СlustersCount = 20});
+            //var currentYearClusters = _classificationManager.Clustering(newClusterPoints, channels, new ClusteringProfile { I = 7, TettaS = 2.5, TettaN = 300, TettaC = 10, Coefficient = 0.5, L = 1, СlustersCount = 20 });
 
-            var resultingPoints = _classificationManager.Compare(lastYearClusters, currentYearClusters);
-            /*using (var bitmap = new Bitmap(999, 999))
+            //var resultingPoints = _classificationManager.Compare(lastYearClusters, currentYearClusters);
+            var resultingPoints = _classificationManager.SetNdviToPoints(clusterPoints, newClusterPoints);
+            using (var bitmap = new Bitmap(999, 999))
             {
                 
-                foreach (var cluster in clusters)
+                foreach (var point in resultingPoints)
                 {
-                    foreach (var point in cluster.Points)
-                    {
-                        bitmap.SetPixel((int)point.CoordX, (int)point.CoordY, cluster.ClusterColor);
-                    }
+                  
+                      bitmap.SetPixel((int)point.CoordX, (int)point.CoordY, point.Color);
                 }
 
                 bitmap.Save(Server.MapPath("~/Files/result.bmp"), ImageFormat.Bmp);
-            }*/
+            }
             ViewBag.Message = "Your application description page.";
             return View();
         }

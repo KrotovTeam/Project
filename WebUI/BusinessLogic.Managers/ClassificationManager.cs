@@ -409,53 +409,84 @@ namespace BusinessLogic.Managers
             return resultingPoints;
         }
 
+        public IEnumerable<ResultingPoint> SetNdviToPoints(IEnumerable<ClusterPoint> lastYearPoints,IEnumerable<ClusterPoint> currentYearPoints)
+        {
+            IEnumerable<ResultingPoint> resultingPoints = new List<ResultingPoint>();
+            for (var i = 0; i < currentYearPoints.Count(); i++)
+            {
+                var operand1 = ((List<ClusterPoint>)currentYearPoints)[i].Values[ChannelEnum.Channel5] - ((List<ClusterPoint>)currentYearPoints)[i].Values[ChannelEnum.Channel4];
+                var operand2 = ((List<ClusterPoint>)currentYearPoints)[i].Values[ChannelEnum.Channel5] + ((List<ClusterPoint>)currentYearPoints)[i].Values[ChannelEnum.Channel4];
+
+                var ndviForCurrentYearPoint = operand1 / operand2;
+
+                var operand3 = ((List<ClusterPoint>)lastYearPoints)[i].Values[ChannelEnum.Channel5] - ((List<ClusterPoint>)lastYearPoints)[i].Values[ChannelEnum.Channel4];
+                var operand4 = ((List<ClusterPoint>)lastYearPoints)[i].Values[ChannelEnum.Channel5] + ((List<ClusterPoint>)lastYearPoints)[i].Values[ChannelEnum.Channel4];
+
+                var ndviForLastYearPoint = operand3 / operand4;
+
+                var ndviChanging = Math.Abs(ndviForLastYearPoint - ndviForCurrentYearPoint) * 100.0;
+                var isChangeExist = ndviChanging >= 30;
+                var resultingPoint = new ResultingPoint
+                {
+                    CoordX = ((List<ClusterPoint>)currentYearPoints)[i].CoordX,
+                    CoordY = ((List<ClusterPoint>)currentYearPoints)[i].CoordY,
+                    Ndvi = ndviForCurrentYearPoint,
+                    IsChanged = isChangeExist,
+                    Color = isChangeExist?Color.Red:GetColorFromNdvi(ndviForCurrentYearPoint)
+                };
+                ((List<ResultingPoint>)resultingPoints).Add(resultingPoint);
+            }
+            return resultingPoints;
+
+        }
+
         private Color GetColorFromNdvi(double ndvi)
         {
             Color color = new Color();
 
             if (ndvi >= 0.9)
             {
-                color = Color.FromArgb(022802);
+                color = Color.FromArgb(0x001100);
             }
             else if (ndvi >= 0.8)
             {
-                color = Color.DarkGreen;
+                color = Color.FromArgb(0x002000);
             }
             else if (ndvi >= 0.7)
             {
-                color = Color.Green;
+                color = Color.FromArgb(0x003000); 
             }
             else if (ndvi >= 0.6)
             {
-                color = Color.ForestGreen;
+                color = Color.FromArgb(0x003500);
             }
             else if (ndvi >= 0.5)
             {
-                color = Color.LimeGreen;
+                color = Color.FromArgb(0x004000);
             }
             else if (ndvi >= 0.4)
             {
-                color = Color.LawnGreen;
+                color = Color.FromArgb(005000);
             }
             else if (ndvi >= 0.3)
             {
-                color = Color.LawnGreen;
+                color = Color.FromArgb(0x428c02);
             }
             else if (ndvi >= 0.2)
             {
-                color = Color.YellowGreen;
+                color = Color.FromArgb(0x72ba14);
             }
             else if (ndvi >= 0.1)
             {
-                color = Color.Tan;
+                color = Color.FromArgb(0x875b28);
             }
             else if (ndvi >= 0.0)
             {
-                color = Color.LightGray;
+                color = Color.FromArgb(0xe5dcd3);
             }
             else if (ndvi >= -1)
             {
-                color = Color.MidnightBlue;
+                color = Color.FromArgb(0x030a33);
             }
             return color;
         }
