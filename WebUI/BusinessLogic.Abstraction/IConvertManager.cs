@@ -11,9 +11,8 @@ namespace BusinessLogic.Abstraction
         /// Асинхронное преобразование снимка в точки
         /// </summary>
         /// <param name="fileName">Путь к файлу</param>
-        /// <param name="channel">Канал</param>
         /// <returns></returns>
-        Task<IEnumerable<Point>> ConvertSnapshotAsync(string fileName, ChannelEnum channel);
+        Task<IList<Point>> ConvertSnapshotAsync(string fileName);
 
         /// <summary>
         /// Преобразование списков точек из снимка в точки для кластеризации
@@ -21,6 +20,6 @@ namespace BusinessLogic.Abstraction
         /// <param name="points">Списки с данными</param>
         /// <param name="channels">Список каналов</param>
         /// <returns></returns>
-        IEnumerable<ClusterPoint> ConvertListsPoints(IEnumerable<IEnumerable<Point>> points, IEnumerable<ChannelEnum> channels);
+        IList<ClusterPoint> ConvertListsPoints(IList<IList<Point>> points, IList<ChannelEnum> channels);
     }
 }

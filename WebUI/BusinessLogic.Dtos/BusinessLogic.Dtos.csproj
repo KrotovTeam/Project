@@ -48,6 +48,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ClusterPoint.cs" />
     <Compile Include="Snapshot.cs" />
+    <Compile Include="ResultingPoint.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Common.Constants\Common.Constants.csproj">

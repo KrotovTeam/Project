@@ -6,18 +6,8 @@ namespace BusinessLogic.Dtos
     /// <summary>
     /// Сырые данные для кластеризации
     /// </summary>
-    public class ClusterPoint
+    public class ClusterPoint : GeographicalPoint
     {
-        /// <summary>
-        /// Координата по X
-        /// </summary>
-        public double CoordX { get; set; }
-
-        /// <summary>
-        /// Координата по Y
-        /// </summary>
-        public double CoordY { get; set; }
-
         /// <summary>
         /// Значения по каналам
         /// </summary>

@@ -1,9 +1,13 @@
 ﻿namespace BusinessLogic.Dtos
 {
-    public class Point
+    /// <summary>
+    /// Точка снимка
+    /// </summary>
+    public class Point : GeographicalPoint
     {
-        public double CoordX { get; set; }
-        public double CoordY { get; set; }
+        /// <summary>
+        /// Значение в точке снимка
+        /// </summary>
         public double Value { get; set; }
     }
 }

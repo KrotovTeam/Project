@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.Linq;
 using System.Threading.Tasks;
 using BusinessLogic.Abstraction;
@@ -17,30 +16,27 @@ namespace BusinessLogic.Managers
         /// Асинхронное преобразование снимка в точки
         /// </summary>
         /// <param name="fileName">Путь к файлу</param>
-        /// <param name="channel">Канал</param>
         /// <returns></returns>
-        public Task<IEnumerable<Point>> ConvertSnapshotAsync(string fileName, ChannelEnum channel)
+        public Task<IList<Point>> ConvertSnapshotAsync(string fileName)
         {
             return Task.Run(() =>
             {
                 using (var img = new Bitmap(fileName))
                 {
                     var result = new List<Point>();
-                    //var coefficient = Coefficients.GetCoefficientForConvert(channel);
                     for (var i = 0; i < img.Width; i++)
                     {
                         for (var j = 0; j < img.Height; j++)
                         {
                             result.Add(new Point
                             {
-                                CoordX = i,
-                                CoordY = j,
-                                //Value = coefficient.Item1 * img.GetPixel(i, j).R + coefficient.Item2
+                                Latitude = i,
+                                Longitude = j,
                                 Value = img.GetPixel(i, j).R
                             });
                         }
                     }
-                    return (IEnumerable<Point>)result;
+                    return (IList<Point>)result;
                 }
             });
         }
@@ -51,7 +47,7 @@ namespace BusinessLogic.Managers
         /// <param name="points">Списки с данными</param>
         /// <param name="channels">Список каналов</param>
         /// <returns></returns>
-        public IEnumerable<ClusterPoint> ConvertListsPoints(IEnumerable<IEnumerable<Point>> points, IEnumerable<ChannelEnum> channels)
+        public IList<ClusterPoint> ConvertListsPoints(IList<IList<Point>> points, IList<ChannelEnum> channels)
         {
             if (points.Count() != channels.Count())
             {
@@ -68,7 +64,7 @@ namespace BusinessLogic.Managers
             for (var i = 0; i < count; i++)
             {
                 var item = points.ElementAt(0).ElementAt(i);
-                var clusterPoint = new ClusterPoint {CoordX = item.CoordX, CoordY = item.CoordY};
+                var clusterPoint = new ClusterPoint {Latitude = item.Latitude, Longitude = item.Longitude};
                 for (var j = 0; j < points.Count(); j++)
                 {
                     clusterPoint.Values.Add(channels.ElementAt(j), points.ElementAt(j).ElementAt(i).Value);
