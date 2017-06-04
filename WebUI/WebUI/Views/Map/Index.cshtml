@@ -1,0 +1,19 @@
+﻿@{
+    ViewBag.Title = "Карта";
+}
+
+<div id="map"></div>
+
+@section scripts
+{
+<script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU" type="text/javascript"></script>
+@Scripts.Render("~/bundles/map")
+
+<script>
+    $(document).ready(function () {
+        ymaps.ready(init);
+    });
+</script>
+}
+
+
