@@ -1,4 +1,5 @@
-﻿using System.Web.Mvc;
+﻿using System.Collections.Generic;
+using System.Web.Mvc;
 using BusinessLogic.Dtos;
 
 namespace WebUI.Controllers
@@ -12,9 +13,9 @@ namespace WebUI.Controllers
         }
 
         [HttpPost]
-        public ActionResult Snapshots(GeographicalPoint upperRight)
+        public JsonResult Snapshots(IEnumerable<GeographicalPoint> points)
         {
-            return View();
+            return Json(points);
         }
     }
 }

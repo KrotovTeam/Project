@@ -1,16 +1,24 @@
-﻿// Точки
-var points = [];
-// Карта
-var map;
-var rectangle;
+﻿var Map = {};
 
-var init = function() {
-    map = new ymaps.Map("map", {
+Map.points = [];
+
+Map.getPoints = function() {
+    return [{
+        Latitude: Map.points[0].geometry._coordinates[0],
+        Longitude: Map.points[0].geometry._coordinates[1]
+    }, {
+        Latitude: Map.points[1].geometry._coordinates[0],
+        Longitude: Map.points[1].geometry._coordinates[1]
+    }];
+};
+
+Map.init = function() {
+    Map.map = new ymaps.Map("map", {
         center: [44.547521, 33.705542],
         zoom: 10
     });
-    map.events.add('click', function (e) {
-        if (points.length < 2) {
+    Map.map.events.add('click', function (e) {
+        if (Map.points.length < 2) {
             var coords = e.get('coords');
             var placemark = new ymaps.Placemark([coords[0], coords[1]], {
                 preset: 'islands#icon',
@@ -20,38 +28,38 @@ var init = function() {
             });
 
             placemark.events.add('click', function () {
-                map.geoObjects.remove(placemark);
-                var index = points.findIndex(obj => obj.geometry._coordinates[0] === placemark.geometry._coordinates[0] &&
+                Map.map.geoObjects.remove(placemark);
+                var index = Map.points.findIndex(obj => obj.geometry._coordinates[0] === placemark.geometry._coordinates[0] &&
                     obj.geometry._coordinates[1] === placemark.geometry._coordinates[1]);
-                points.splice(index, 1);
-                if (points.length === 1) {
+                Map.points.splice(index, 1);
+                if (Map.points.length === 1) {
                     $("#map").trigger("removeRectangle");
                 }
             });
 
             placemark.events.add("dragend", function () {
-                map.geoObjects.remove(rectangle);
+                Map.map.geoObjects.remove(Map.rectangle);
                 $("#map").trigger("addRectangle");
             });
 
-            map.geoObjects.add(placemark);
-            points.push(placemark);
-            if (points.length === 2) {
+            Map.map.geoObjects.add(placemark);
+            Map.points.push(placemark);
+            if (Map.points.length === 2) {
                 $("#map").trigger("addRectangle");
             }
         }
     });
 
     $("#map").on("addRectangle", function () {
-        rectangle = new ymaps.Rectangle([points[0].geometry._coordinates, points[1].geometry._coordinates],
+        Map.rectangle = new ymaps.Rectangle([Map.points[0].geometry._coordinates, Map.points[1].geometry._coordinates],
         {
             strokeColor: '#0000FF',
             strokeWidth: 2
         });
-        map.geoObjects.add(rectangle);
+        Map.map.geoObjects.add(Map.rectangle);
     });
 
     $("#map").on("removeRectangle", function () {
-        map.geoObjects.remove(rectangle);
+        Map.map.geoObjects.remove(Map.rectangle);
     });
 };
