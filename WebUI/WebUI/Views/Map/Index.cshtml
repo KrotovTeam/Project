@@ -3,6 +3,8 @@
 }
 
 <div id="map"></div>
+<input type="button" id="send" value="Отправить"/>
+<div id="points"></div>
 
 @section scripts
 {
@@ -11,7 +13,22 @@
 
 <script>
     $(document).ready(function () {
-        ymaps.ready(init);
+        ymaps.ready(Map.init);
+        $("#send").on("click", function () {
+            $.ajax({
+                url: "@Url.Action("Snapshots","Map")",
+                type: "POST",
+                data: JSON.stringify(Map.getPoints()),
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    var container = $("#points");
+                    data.forEach(function(elem) {
+                        container.append($("<div>").html(elem.Latitude + " " + elem.Longitude + "<br>"));
+                    });
+                }
+            });
+        });
     });
 </script>
 }
