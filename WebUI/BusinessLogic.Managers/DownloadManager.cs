@@ -6,7 +6,7 @@ using Common.Constants;
 using RestSharp;
 using Newtonsoft.Json;
 using System.IO;
-using ICSharpCode.SharpZipLib;
+//using ICSharpCode.SharpZipLib;
 
 namespace BusinessLogic.Managers
 {
