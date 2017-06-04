@@ -1,65 +1,19 @@
 ﻿@{
-    Layout = null;
     ViewBag.Title = "Карта";
 }
-<html lang="ru">
-<head>
-    <meta charset="utf-8"/>
-    <title>@ViewBag.Title – приложение ASP.NET</title>
-    <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU" type="text/javascript"></script>
-    @Scripts.Render("~/bundles/jquery")
-</head>
-<body>
-    <div id="map" style="width: 600px; height: 400px"></div>
-    <script>
-        $(document).ready(function () {
-            var points = [];
-            var map;
-            var rectangle;
 
-            ymaps.ready(function() {
-                map = new ymaps.Map("map", {
-                    center: [44.547521, 33.705542],
-                    zoom: 10
-                });
-                map.events.add('click', function (e) {
-                    if (points.length < 2) {
-                        var coords = e.get('coords');
-                        var placemark = new ymaps.Placemark([coords[0], coords[1]], {
-                            preset: 'islands#icon',
-                            iconColor: '#0095b6'
-                        });
-                        placemark.events.add('click', function () {
-                            map.geoObjects.remove(placemark);
-                            var index = points.findIndex(obj => obj[0] == placemark.geometry._coordinates[0] &&
-                                obj[1] == placemark.geometry._coordinates[1]);
-                            console.log(index);
-                            points.splice(index, 1);
-                            if (points.length == 1) {
-                                $("#map").trigger("removeRectangle");
-                            }
-                        });
-                        map.geoObjects.add(placemark);
-                        points.push(coords);
-                        if (points.length == 2) {
-                            $("#map").trigger("addRectangle");
-                        }
-                    }
-                });
-            });
-            $("#map").on("addRectangle", function() {
-                rectangle = new ymaps.Rectangle([points[0], points[1]],
-                {
-                    strokeColor: '#0000FF',
-                    strokeWidth: 2
-                });
-                map.geoObjects.add(rectangle);
-            });
-            $("#map").on("removeRectangle", function () {
-                map.geoObjects.remove(rectangle);
-            });
-        })
-    </script>
-</body>
-</html>
+<div id="map"></div>
+
+@section scripts
+{
+<script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU" type="text/javascript"></script>
+@Scripts.Render("~/bundles/map")
+
+<script>
+    $(document).ready(function () {
+        init();
+    })
+</script>
+}
+
 
