@@ -60,12 +60,12 @@ namespace BusinessLogic.Managers
         /// <summary>
         /// Вектор среднеквадратичного отколнения
         /// </summary>
-        private readonly IList<Dictionary<ChannelEnum, double>> _sigmaj = new List<Dictionary<ChannelEnum, double>>();
+        private readonly IList<Dictionary<CoordinateSystemEnum, double>> _sigmaj = new List<Dictionary<CoordinateSystemEnum, double>>();
 
         /// <summary>
         /// Максимальная компонента в векторе среднеквадратичного отклонения
         /// </summary>
-        private readonly IList<Tuple<ChannelEnum, double>> _sigmajMax = new List<Tuple<ChannelEnum, double>>();
+        private readonly IList<Tuple<CoordinateSystemEnum, double>> _sigmajMax = new List<Tuple<CoordinateSystemEnum, double>>();
 
         /// <summary>
         /// Коэффициент при высчитывании gammaj
@@ -79,21 +79,23 @@ namespace BusinessLogic.Managers
 
         #endregion
 
+        #region Clustering
+
         /// <summary>
         /// Кластеризация данных методом Isodata
         /// </summary>
         /// <param name="points">Входные данные</param>
-        /// <param name="channels">Каналы по которым происходит классификация</param>
+        /// <param name="keys">Ключи по которым происходит классификация</param>
         /// <param name="profile">Профайл с параметрами кластеризации</param>
         /// <returns></returns>
-        public IEnumerable<Cluster> Clustering(IEnumerable<ClusterPoint> points, IEnumerable<ChannelEnum> channels, ClusteringProfile profile = null)
+        public IEnumerable<Cluster> Clustering(IEnumerable<ResultingPoint> points, IEnumerable<CoordinateSystemEnum> keys, ClusteringProfile profile = null)
         {
             if (points == null)
             {
                 throw new Exception("Точки для кластеризации не заданы.");
             }
 
-            if (points.ElementAt(0).Values.Keys.Count != channels.Count())
+            if (points.ElementAt(0).Values.Keys.Count != keys.Count())
             {
                 throw new Exception("Количество каналов значений точки не совпадет количеству каналов для кластеризации");
             }
@@ -105,7 +107,7 @@ namespace BusinessLogic.Managers
             SetProfile(profile);
 
             //Шаг 1 алгоритма
-            _z = Init(points, channels);
+            _z = Init(points, keys);
 
             for (var i = 1; i <= _i; i++)
             {
@@ -118,7 +120,7 @@ namespace BusinessLogic.Managers
                 foreach (var point in points)
                 {
                     var perfectCluster = _z.OrderBy(cluster => EuclideanDistance(point.Values, cluster.CenterCluster)).First();
-                    ((List<ClusterPoint>)perfectCluster.Points).Add(point);
+                    ((List<ResultingPoint>)perfectCluster.Points).Add(point);
                 }
 
                 //Шаг 3 алгоритма
@@ -131,10 +133,10 @@ namespace BusinessLogic.Managers
                 //Шаг 4 алгоритма
                 foreach (var cluster in _z)
                 {
-                    cluster.CenterCluster = new Dictionary<ChannelEnum, double>();
-                    foreach (var channel in channels)
+                    cluster.CenterCluster = new Dictionary<CoordinateSystemEnum, int>();
+                    foreach (var channel in keys)
                     {
-                        cluster.CenterCluster.Add(channel,0f);
+                        cluster.CenterCluster.Add(channel,0);
                         foreach (var point in cluster.Points)
                         {
                             cluster.CenterCluster[channel] += point.Values[channel];
@@ -171,7 +173,7 @@ namespace BusinessLogic.Managers
                 }
                 else
                 {
-                    if (Step8(channels))
+                    if (Step8(keys))
                     {
                         continue;
                     }
@@ -185,7 +187,7 @@ namespace BusinessLogic.Managers
         /// <summary>
         /// 8-й шаг алгоритма
         /// </summary>
-        private bool Step8(IEnumerable<ChannelEnum> channels)
+        private bool Step8(IEnumerable<CoordinateSystemEnum> keys)
         {
             _sigmaj.Clear();
             _sigmajMax.Clear();
@@ -193,12 +195,12 @@ namespace BusinessLogic.Managers
             //Шаг 8
             foreach (var cluster in _z)
             {
-                var dictionary = new Dictionary<ChannelEnum, double>();
-                foreach (var channel in channels)
+                var dictionary = new Dictionary<CoordinateSystemEnum, double>();
+                foreach (var key in keys)
                 {
-                    var value = cluster.Points.Sum(point => Math.Pow((point.Values[channel] - cluster.CenterCluster[channel]), 2));
+                    var value = cluster.Points.Sum(point => Math.Pow((point.Values[key] - cluster.CenterCluster[key]), 2));
                     value = Math.Sqrt(value/cluster.Points.Count());
-                    dictionary.Add(channel,value);
+                    dictionary.Add(key,value);
                 }
                 _sigmaj.Add(dictionary);
             }
@@ -207,7 +209,7 @@ namespace BusinessLogic.Managers
             for (var i = 0; i < _z.Count; i++)
             {
                 var max = double.MinValue;
-                var channel = ChannelEnum.Unknown;
+                var channel = CoordinateSystemEnum.Unknown;
                 foreach (var key in _sigmaj.ElementAt(i).Keys)
                 {
                     if (_sigmaj.ElementAt(i)[key] > max)
@@ -216,7 +218,7 @@ namespace BusinessLogic.Managers
                         channel = key;
                     }
                 }
-                _sigmajMax.Add(new Tuple<ChannelEnum, double>(channel, max));
+                _sigmajMax.Add(new Tuple<CoordinateSystemEnum, double>(channel, max));
             }
 
             //Шаг 10
@@ -235,10 +237,10 @@ namespace BusinessLogic.Managers
 
                     //zj+
                     ((List<ClusterPoint>)_z[i].Points).Clear();
-                    _z[i].CenterCluster[_sigmajMax[i].Item1] = _z[i].CenterCluster[_sigmajMax[i].Item1] + gammaj;
+                    _z[i].CenterCluster[_sigmajMax[i].Item1] = Convert.ToInt32(_z[i].CenterCluster[_sigmajMax[i].Item1] + gammaj);
 
                     //zj-
-                    newCluster.CenterCluster[_sigmajMax[i].Item1] = newCluster.CenterCluster[_sigmajMax[i].Item1] - gammaj;
+                    newCluster.CenterCluster[_sigmajMax[i].Item1] = Convert.ToInt32(newCluster.CenterCluster[_sigmajMax[i].Item1] - gammaj);
                     _z.Add(newCluster);
 
                     return true;
@@ -280,8 +282,8 @@ namespace BusinessLogic.Managers
 
                     }
 
-                    ((List<ClusterPoint>)newCluster.Points).AddRange(cluster.Item1.Points);
-                    ((List<ClusterPoint>)newCluster.Points).AddRange(cluster.Item2.Points);
+                    ((List<ResultingPoint>)newCluster.Points).AddRange(cluster.Item1.Points);
+                    ((List<ResultingPoint>)newCluster.Points).AddRange(cluster.Item2.Points);
 
                     _z.Add(newCluster);
                     _z.Remove(cluster.Item1);
@@ -296,7 +298,7 @@ namespace BusinessLogic.Managers
         /// <param name="pointA">Значения точки А</param>
         /// <param name="pointB">Значения точки B</param>
         /// <returns></returns>
-        private double EuclideanDistance(Dictionary<ChannelEnum, double> pointA, Dictionary<ChannelEnum, double> pointB)
+        private double EuclideanDistance(Dictionary<CoordinateSystemEnum, int> pointA, Dictionary<CoordinateSystemEnum, int> pointB)
         {
             var keys = pointA.Keys;
             var result = keys.Sum(key => Math.Pow((pointA[key] - pointB[key]), 2));
@@ -309,17 +311,17 @@ namespace BusinessLogic.Managers
         /// </summary>
         /// <param name="points"></param>
         /// <returns></returns>
-        private IList<Cluster> Init(IEnumerable<ClusterPoint> points, IEnumerable<ChannelEnum> channels)
+        private IList<Cluster> Init(IEnumerable<ResultingPoint> points, IEnumerable<CoordinateSystemEnum> keys)
         {
             var step = points.Count()/_clustersCount;
             var result = new List<Cluster>();
             for (var i = step; i < points.Count(); i += step)
             {
-                var dictinary = new Dictionary<ChannelEnum, double>();
-                for (var j = 0; j < channels.Count(); j++)
+                var dictinary = new Dictionary<CoordinateSystemEnum, int>();
+                for (var j = 0; j < keys.Count(); j++)
                 {
-                    var channel = channels.ElementAt(j);
-                    dictinary.Add(channel, points.ElementAt(j).Values[channel]);
+                    var key = keys.ElementAt(j);
+                    dictinary.Add(key, points.ElementAt(j).Values[key]);
                 }
                 result.Add(new Cluster
                 {
@@ -344,20 +346,7 @@ namespace BusinessLogic.Managers
             _coefficient = profile.Coefficient == 0 ? 0.5f : profile.Coefficient;
         }
 
-        /// <summary>
-        /// Установка вегетационного индекса кластерам(NDVI) и определение цвета кластера
-        /// </summary>
-        /// <param name="clusters">Входные кластеры</param>
-        public void SetNdviForClusters(IList<Cluster> clusters)
-        {
-            foreach (var cluster in clusters)
-            {
-                var operand1 = cluster.CenterCluster[ChannelEnum.Channel5] - cluster.CenterCluster[ChannelEnum.Channel4];
-                var operand2 = cluster.CenterCluster[ChannelEnum.Channel5] + cluster.CenterCluster[ChannelEnum.Channel4];
-
-                cluster.Ndvi = operand1 / operand2;
-            }
-        }
+        #endregion
 
         /// <summary>
         /// Метод определяет изменения значения вегетационного индекса на снимке c прошлого по текущий год
@@ -367,43 +356,44 @@ namespace BusinessLogic.Managers
         /// <returns></returns>
         public IList<ResultingPoint> Compare(IEnumerable<Cluster> lastYearClusters, IEnumerable<Cluster> currentYearClusters)
         {
-            List<ClusterPoint> currentYearPoints = new List<ClusterPoint>();
-            List<ClusterPoint> lastYearPoints = new List<ClusterPoint>();
-            foreach (var cluster in lastYearClusters)
-            {
-                lastYearPoints.AddRange((List<ClusterPoint>)(cluster.Points).GroupBy(point => new {point.Latitude, point.Longitude}));
-            }
-            foreach (var cluster in currentYearClusters)
-            {
-                currentYearPoints.AddRange((List<ClusterPoint>) (cluster.Points).GroupBy(point => new {point.Latitude, point.Longitude}));
-            }
+            //List<ClusterPoint> currentYearPoints = new List<ClusterPoint>();
+            //List<ClusterPoint> lastYearPoints = new List<ClusterPoint>();
+            //foreach (var cluster in lastYearClusters)
+            //{
+            //    lastYearPoints.AddRange((List<ClusterPoint>)(cluster.Points).GroupBy(point => new {point.Latitude, point.Longitude}));
+            //}
+            //foreach (var cluster in currentYearClusters)
+            //{
+            //    currentYearPoints.AddRange((List<ClusterPoint>) (cluster.Points).GroupBy(point => new {point.Latitude, point.Longitude}));
+            //}
 
 
-            IList<ResultingPoint> resultingPoints = new List<ResultingPoint>();
-            for (var i = 0; i < currentYearPoints.Count(); i++)
-            {
-                var operand1 = currentYearPoints[i].Values[ChannelEnum.Channel5] - currentYearPoints[i].Values[ChannelEnum.Channel4];
-                var operand2 = currentYearPoints[i].Values[ChannelEnum.Channel5] + currentYearPoints[i].Values[ChannelEnum.Channel4];
+            //IList<ResultingPoint> resultingPoints = new List<ResultingPoint>();
+            //for (var i = 0; i < currentYearPoints.Count(); i++)
+            //{
+            //    var operand1 = currentYearPoints[i].Values[ChannelEnum.Channel5] - currentYearPoints[i].Values[ChannelEnum.Channel4];
+            //    var operand2 = currentYearPoints[i].Values[ChannelEnum.Channel5] + currentYearPoints[i].Values[ChannelEnum.Channel4];
 
-                var ndviForCurrentYearPoint = operand1 / operand2;
+            //    var ndviForCurrentYearPoint = operand1 / operand2;
 
-                var operand3 = lastYearPoints[i].Values[ChannelEnum.Channel5] - lastYearPoints[i].Values[ChannelEnum.Channel4];
-                var operand4 = lastYearPoints[i].Values[ChannelEnum.Channel5] + lastYearPoints[i].Values[ChannelEnum.Channel4];
+            //    var operand3 = lastYearPoints[i].Values[ChannelEnum.Channel5] - lastYearPoints[i].Values[ChannelEnum.Channel4];
+            //    var operand4 = lastYearPoints[i].Values[ChannelEnum.Channel5] + lastYearPoints[i].Values[ChannelEnum.Channel4];
 
-                var ndviForLastYearPoint = operand3 / operand4;
+            //    var ndviForLastYearPoint = operand3 / operand4;
 
-                var ndviChanging = Math.Abs(ndviForLastYearPoint - ndviForCurrentYearPoint) * 100.0;
-                var isChangeExist = ndviChanging >= 30;
-                var resultingPoint = new ResultingPoint
-                {
-                    Latitude = currentYearPoints[i].Latitude,
-                    Longitude = currentYearPoints[i].Longitude,
-                    Ndvi = ndviForCurrentYearPoint,
-                    IsChanged = isChangeExist
-                };
-                resultingPoints.Add(resultingPoint);
-            }
-            return resultingPoints;
+            //    var ndviChanging = Math.Abs(ndviForLastYearPoint - ndviForCurrentYearPoint) * 100.0;
+            //    var isChangeExist = ndviChanging >= 30;
+            //    var resultingPoint = new ResultingPoint
+            //    {
+            //        Latitude = currentYearPoints[i].Latitude,
+            //        Longitude = currentYearPoints[i].Longitude,
+            //        Ndvi = ndviForCurrentYearPoint,
+            //        IsChanged = isChangeExist
+            //    };
+            //    resultingPoints.Add(resultingPoint);
+            //}
+            //return resultingPoints;
+            return null;
         }
 
         /// <summary>
@@ -428,16 +418,18 @@ namespace BusinessLogic.Managers
                 var ndviForLastYearPoint = operand3 / operand4;
 
                 var ndviChanging = Math.Abs(ndviForLastYearPoint - ndviForCurrentYearPoint) * 100.0;
-                var isChangeExist = ndviChanging >= 30;
-                var resultingPoint = new ResultingPoint
+                if (ndviChanging >= 30)
                 {
-                    Latitude = currentYearPoints[i].Latitude,
-                    Longitude = currentYearPoints[i].Longitude,
-                    Ndvi = ndviForCurrentYearPoint,
-                    IsChanged = isChangeExist
-                };
-
-                resultingPoints.Add(resultingPoint);
+                    resultingPoints.Add(new ResultingPoint
+                    {
+                        Ndvi = ndviForCurrentYearPoint,
+                        Values = new Dictionary<CoordinateSystemEnum, int>
+                        {
+                            [CoordinateSystemEnum.Latitude] = Convert.ToInt32(currentYearPoints[i].Latitude),
+                            [CoordinateSystemEnum.Longitude] = Convert.ToInt32(currentYearPoints[i].Longitude)
+                        }
+                    });
+                }
             }
             return resultingPoints;
         }

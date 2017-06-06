@@ -1,18 +1,23 @@
-﻿namespace BusinessLogic.Dtos
+﻿using System.Collections.Generic;
+using Common.Constants;
+
+namespace BusinessLogic.Dtos
 {
     /// <summary>
     /// Результирующая точка после сравнения снимков за текущий год со снимками за предыдущие года
     /// </summary>
-    public class ResultingPoint : GeographicalPoint
+    public class ResultingPoint
     {
+        public Dictionary<CoordinateSystemEnum, int> Values { get; set; }
+
         /// <summary>
         /// Результирующий вегетационный индекс после сравнения снимков за текущий и предыдущие года.
         /// </summary>
         public double Ndvi { get; set; }
 
-        /// <summary>
-        /// Флаг, означающий, что на снимке за текущий год по сравнению с прошлыми обнаружились изменения в данной точке
-        /// </summary>
-        public bool IsChanged { get; set; }
+        public ResultingPoint()
+        {
+            Values = new Dictionary<CoordinateSystemEnum, int>();
+        }
     }
 }

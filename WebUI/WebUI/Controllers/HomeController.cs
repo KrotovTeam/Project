@@ -36,8 +36,8 @@ namespace WebUI.Controllers
             var clusterPoints =_convertManager.ConvertListsPoints(new List<IList<Point>> {channel4.Result, channel5.Result}, channels);
             var newClusterPoints = _convertManager.ConvertListsPoints(new List<IList<Point>> { channel4New.Result, chennel5New.Result }, channels);
 
-            _drawManager.DrawProcessedSnapshot(clusterPoints, Server.MapPath("~/Files/Old.bmp"), 999, 999);
-            _drawManager.DrawProcessedSnapshot(newClusterPoints, Server.MapPath("~/Files/New.bmp"), 999, 999);
+            //_drawManager.DrawProcessedSnapshot(clusterPoints, Server.MapPath("~/Files/Old.bmp"), 999, 999);
+            //_drawManager.DrawProcessedSnapshot(newClusterPoints, Server.MapPath("~/Files/New.bmp"), 999, 999);
 
             var resultingPoints = _classificationManager.DeterminationDinamics(clusterPoints, newClusterPoints);
 

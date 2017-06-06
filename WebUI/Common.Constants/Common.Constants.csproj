@@ -42,6 +42,7 @@
   <ItemGroup>
     <Compile Include="ChannelEnum.cs" />
     <Compile Include="Coefficients.cs" />
+    <Compile Include="CoordinateSystemEnum.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

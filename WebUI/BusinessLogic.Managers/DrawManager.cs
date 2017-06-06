@@ -25,8 +25,8 @@ namespace BusinessLogic.Managers
             {
                 foreach (var point in points)
                 {
-                    var color = point.IsChanged ? Color.Red : GetColorForNdvi(point.Ndvi);
-                    bitmap.SetPixel((int)point.Latitude, (int)point.Longitude, color);
+                    //var color = point.IsChanged ? Color.Red : GetColorForNdvi(point.Ndvi);
+                    //bitmap.SetPixel((int)point.Latitude, (int)point.Longitude, color);
                 }
 
                 bitmap.Save(pathFile, ImageFormat.Bmp);
