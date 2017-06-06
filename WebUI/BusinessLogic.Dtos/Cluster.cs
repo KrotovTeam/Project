@@ -8,7 +8,6 @@ namespace BusinessLogic.Dtos
         public Dictionary<CoordinateSystemEnum, int> CenterCluster { get; set; }
         public IEnumerable<ResultingPoint> Points { get; set; }
         public bool IsJoined { get; set; }
-        public double Ndvi { get; set; }
 
         public Cluster()
         {

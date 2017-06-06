@@ -113,7 +113,7 @@ namespace BusinessLogic.Managers
             {
                 foreach (var cluster in _z)
                 {
-                    ((List<ClusterPoint>)cluster.Points).Clear();
+                    ((List<ResultingPoint>)cluster.Points).Clear();
                 }
 
                 //Шаг 2 алгоритма
@@ -236,7 +236,7 @@ namespace BusinessLogic.Managers
                     }
 
                     //zj+
-                    ((List<ClusterPoint>)_z[i].Points).Clear();
+                    ((List<ResultingPoint>)_z[i].Points).Clear();
                     _z[i].CenterCluster[_sigmajMax[i].Item1] = Convert.ToInt32(_z[i].CenterCluster[_sigmajMax[i].Item1] + gammaj);
 
                     //zj-
@@ -405,7 +405,7 @@ namespace BusinessLogic.Managers
         public IList<ResultingPoint> DeterminationDinamics(IList<ClusterPoint> lastYearPoints, IList<ClusterPoint> currentYearPoints)
         {
             IList<ResultingPoint> resultingPoints = new List<ResultingPoint>();
-            for (var i = 0; i < currentYearPoints.Count(); i++)
+            for (var i = 0; i < currentYearPoints.Count; i++)
             {
                 var operand1 = currentYearPoints[i].Values[ChannelEnum.Channel5] - currentYearPoints[i].Values[ChannelEnum.Channel4];
                 var operand2 = currentYearPoints[i].Values[ChannelEnum.Channel5] + currentYearPoints[i].Values[ChannelEnum.Channel4];
@@ -432,6 +432,54 @@ namespace BusinessLogic.Managers
                 }
             }
             return resultingPoints;
+        }
+
+        public IList<ResultingPoint> GetBoundaryPoints(IList<Cluster> clusters, int width, int height)
+        {
+            var result = new List<ResultingPoint>();
+            for (var i = 0; i < width; i++)
+            {
+                foreach (var cluster in clusters)
+                {
+                    var overridingPoints = cluster.Points.Where(p => p.Values[CoordinateSystemEnum.Latitude] == i).ToList();
+                    if (overridingPoints.Count() != 0)
+                    {
+                        var max = overridingPoints.Max(p => p.Values[CoordinateSystemEnum.Longitude]);
+                        var min = overridingPoints.Min(p => p.Values[CoordinateSystemEnum.Longitude]);
+                        if (max != min)
+                        {
+                            result.Add(overridingPoints.First(k => k.Values[CoordinateSystemEnum.Longitude] == max));
+                            result.Add(overridingPoints.First(k => k.Values[CoordinateSystemEnum.Longitude] == min));
+                        }
+                        else
+                        {
+                            result.Add(overridingPoints.First(k => k.Values[CoordinateSystemEnum.Longitude] == max));
+                        }
+                    }
+                }
+            }
+            for (var i = 0; i < height; i++)
+            {
+                foreach (var cluster in clusters)
+                {
+                    var overridingPoints = cluster.Points.Where(p => p.Values[CoordinateSystemEnum.Longitude] == i);
+                    if (overridingPoints.Count() != 0)
+                    {
+                        var max = overridingPoints.Max(p => p.Values[CoordinateSystemEnum.Latitude]);
+                        var min = overridingPoints.Min(p => p.Values[CoordinateSystemEnum.Latitude]);
+                        if (max != min)
+                        {
+                            result.Add(overridingPoints.First(k => k.Values[CoordinateSystemEnum.Latitude] == max));
+                            result.Add(overridingPoints.First(k => k.Values[CoordinateSystemEnum.Latitude] == min));
+                        }
+                        else
+                        {
+                            result.Add(overridingPoints.First(k => k.Values[CoordinateSystemEnum.Latitude] == max));
+                        }
+                    }
+                }
+            }
+            return result;
         }
     }
 }

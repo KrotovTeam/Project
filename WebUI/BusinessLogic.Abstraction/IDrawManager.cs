@@ -11,11 +11,12 @@ namespace BusinessLogic.Abstraction
         /// <summary>
         /// Отображение динамики
         /// </summary>
-        /// <param name="points">Точки</param>
+        /// <param name="clusterPoints"></param>
+        /// <param name="boundaryPoints"></param>
         /// <param name="pathFile">Путь к файлу</param>
         /// <param name="width">Ширина картинки</param>
         /// <param name="height">Высота картинки</param>
-        void DrawDinamics(IList<ResultingPoint> points, string pathFile, int width, int height);
+        void DrawDinamics(IList<ResultingPoint> boundaryPoints, IList<ClusterPoint> clusterPoints, string pathFile, int width, int height);
 
         /// <summary>
         /// Отображение обработанного снимка

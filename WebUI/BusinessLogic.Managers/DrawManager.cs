@@ -19,14 +19,29 @@ namespace BusinessLogic.Managers
         /// <param name="pathFile">Путь к файлу</param>
         /// <param name="width">Ширина картинки</param>
         /// <param name="height">Высота картинки</param>
-        public void DrawDinamics(IList<ResultingPoint> points, string pathFile, int width, int height)
+        public void DrawDinamics(IList<ResultingPoint> boundaryPoints, IList<ClusterPoint> clusterPoints, string pathFile, int width, int height)
         {
             using (var bitmap = new Bitmap(width, height))
             {
-                foreach (var point in points)
+                foreach (var point in clusterPoints)
                 {
-                    //var color = point.IsChanged ? Color.Red : GetColorForNdvi(point.Ndvi);
-                    //bitmap.SetPixel((int)point.Latitude, (int)point.Longitude, color);
+                    var operand1 = point.Values[ChannelEnum.Channel5] - point.Values[ChannelEnum.Channel4];
+                    var operand2 = point.Values[ChannelEnum.Channel5] + point.Values[ChannelEnum.Channel4];
+                    var ndvi = operand1 / operand2;
+                    var color = GetColorForNdvi(ndvi);
+                    bitmap.SetPixel((int)point.Latitude, (int)point.Longitude, color);
+                }
+                var graphics = Graphics.FromImage(bitmap);
+                foreach (var point in boundaryPoints)
+                {
+                    graphics.FillRectangle(Brushes.Red, new Rectangle
+                    {
+                        X = point.Values[CoordinateSystemEnum.Latitude],
+                        Y = point.Values[CoordinateSystemEnum.Longitude],
+                        Height = 4,
+                        Width = 4
+                    });
+                    //bitmap.SetPixel(point.Values[CoordinateSystemEnum.Latitude], point.Values[CoordinateSystemEnum.Longitude]);
                 }
 
                 bitmap.Save(pathFile, ImageFormat.Bmp);

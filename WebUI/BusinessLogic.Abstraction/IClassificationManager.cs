@@ -30,5 +30,7 @@ namespace BusinessLogic.Abstraction
         /// <param name="currentYearPoints">Актуальные точки</param>
         /// <returns></returns>
         IList<ResultingPoint> DeterminationDinamics(IList<ClusterPoint> lastYearPoints, IList<ClusterPoint> currentYearPoints);
+
+        IList<ResultingPoint> GetBoundaryPoints(IList<Cluster> clusters, int width, int height);
     }
 }
