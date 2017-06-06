@@ -10,16 +10,10 @@ namespace BusinessLogic.Abstraction
         /// Кластеризация данных методом Isodata
         /// </summary>
         /// <param name="points">Входные данные</param>
-        /// <param name="channels">Каналы по которым происходит классификация</param>
+        /// <param name="keys">Ключи по которым происходит классификация</param>
         /// <param name="profile">Профайл с параметрами кластеризации</param>
         /// <returns></returns>
-        IEnumerable<Cluster> Clustering(IEnumerable<ClusterPoint> points, IEnumerable<ChannelEnum> channels, ClusteringProfile profile = null);
-        
-        /// <summary>
-        /// Установка вегетационного индекса кластерам(NDVI) и определение цвета кластера
-        /// </summary>
-        /// <param name="clusters">Входные кластеры</param>
-        void SetNdviForClusters(IList<Cluster> clusters);
+        IEnumerable<Cluster> Clustering(IEnumerable<ResultingPoint> points, IEnumerable<CoordinateSystemEnum> keys, ClusteringProfile profile = null);
 
         /// <summary>
         /// Метод определяет изменения значения вегетационного индекса на снимке c прошлого по текущий год
@@ -36,5 +30,7 @@ namespace BusinessLogic.Abstraction
         /// <param name="currentYearPoints">Актуальные точки</param>
         /// <returns></returns>
         IList<ResultingPoint> DeterminationDinamics(IList<ClusterPoint> lastYearPoints, IList<ClusterPoint> currentYearPoints);
+
+        IList<ResultingPoint> GetBoundaryPoints(IList<Cluster> clusters, int width, int height);
     }
 }
