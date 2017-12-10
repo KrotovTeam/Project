@@ -141,6 +141,8 @@ namespace BusinessLogic.Managers
                         }
                         cluster.CenterCluster[channel] /= cluster.Points.Count();
                     }
+                    cluster.Ndvi = (cluster.CenterCluster[ChannelEnum.Channel5] - cluster.CenterCluster[ChannelEnum.Channel4])/
+                                   (cluster.CenterCluster[ChannelEnum.Channel5] + cluster.CenterCluster[ChannelEnum.Channel4]);
                 }
                 
                 //Шаг 5 алгоритма
@@ -252,6 +254,7 @@ namespace BusinessLogic.Managers
         /// </summary>
         private void Step11()
         {
+            _dij.Clear();
             //Шаг 11
             for (var i = 0; i < _z.Count - 1; i++)
             {
@@ -260,7 +263,6 @@ namespace BusinessLogic.Managers
 
                 _z[i].IsJoined = false;
             }
-
             //Шаг 12
             var clustersForJoin = _dij.Where(p => p.Item3 < _tettaC).OrderBy(p => p.Item3).Take(_l);
 
@@ -288,6 +290,7 @@ namespace BusinessLogic.Managers
                     _z.Remove(cluster.Item2);
                 }
             }
+           
         }
 
         /// <summary>

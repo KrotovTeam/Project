@@ -45,12 +45,12 @@
         {
             return new ClusteringProfile
             {
-                СlustersCount = 10,
+                СlustersCount = 20,
                 TettaN = 1000,
-                TettaS = 30,
-                TettaC = 150,
+                TettaS = 1,
+                TettaC = 5,
                 L = 2,
-                I = 7
+                I = 20
             };
         }
     }
